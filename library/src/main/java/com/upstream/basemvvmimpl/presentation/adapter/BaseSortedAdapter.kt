@@ -3,9 +3,8 @@ package com.upstream.basemvvmimpl.presentation.adapter
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import androidx.recyclerview.widget.SortedList
-import com.upstream.basemvvmimpl.presentation.model.BaseSortedAdapterViewModel
+import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
 import com.upstream.basemvvmimpl.presentation.utils.isContentEquals
 import java.lang.reflect.ParameterizedType
 import java.util.*
@@ -21,7 +20,7 @@ import kotlin.collections.MutableList
 import kotlin.collections.set
 import kotlin.synchronized
 
-abstract class BaseSortedAdapter<M : Any, T : BaseSortedAdapterViewModel<M>> : BaseAdapter<M, T>() {
+abstract class BaseSortedAdapter<M : Comparable<M>, T : BaseComparableAdapterViewModel<M>> : BaseAdapter<M, T>() {
 
     private val TAG = "BaseSortedAdapter"
 

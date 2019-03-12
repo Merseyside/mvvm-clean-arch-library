@@ -2,11 +2,11 @@ package com.upstream.basemvvmimpl.presentation.utils
 
 import android.util.Log
 import androidx.recyclerview.widget.SortedList
-import com.upstream.basemvvmimpl.presentation.model.BaseSortedAdapterViewModel
+import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
 import java.lang.IllegalArgumentException
 
 @Throws(IllegalArgumentException::class)
-fun <T : BaseSortedAdapterViewModel<M>, M : Any> MutableList<T>.isContentEquals(list : MutableList<T>) : Boolean {
+fun <T : BaseComparableAdapterViewModel<M>, M : Any> MutableList<T>.isContentEquals(list : MutableList<T>) : Boolean {
     Log.d("Filter", "size = ${this.size} size2 = ${list.size}")
 
     if (!this.isEmpty() && !list.isEmpty()) {
@@ -28,7 +28,7 @@ fun <T : BaseSortedAdapterViewModel<M>, M : Any> MutableList<T>.isContentEquals(
 }
 
 @Throws(IllegalArgumentException::class)
-fun <T : BaseSortedAdapterViewModel<M>, M : Any> SortedList<T>.isContentEquals(list : MutableList<T>) : Boolean {
+fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isContentEquals(list : MutableList<T>) : Boolean {
 
     if (this.size() != list.size) {
         return false
