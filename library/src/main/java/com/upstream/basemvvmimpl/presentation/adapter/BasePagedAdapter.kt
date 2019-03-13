@@ -6,21 +6,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import com.upstream.basemvvmimpl.presentation.model.BaseAdapterViewModel
-import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
 import com.upstream.basemvvmimpl.presentation.view.BaseViewHolder
 
-abstract class BasePagedAdapter<M : Comparable<M>, T : BaseComparableAdapterViewModel<M>>
-    : PagedListAdapter<T, BaseViewHolder>(object : DiffUtil.ItemCallback<T>() {
-    override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
-        return oldItem.isContentTheSame(newItem.getItem())
-    }
-
-    override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
-        return oldItem.isItemsTheSame(newItem.getItem())
-    }
-})
-{
+abstract class BasePagedAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>)
+    : PagedListAdapter<T, BaseViewHolder>(diffUtil) {
+    private val TAG = javaClass.simpleName
 
     private var listener: BaseAdapter.AdapterClickListener? = null
 
@@ -31,17 +21,23 @@ abstract class BasePagedAdapter<M : Comparable<M>, T : BaseComparableAdapterView
         return BaseViewHolder(binding)
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return getLayoutIdForPosition(position)
+    }
+
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         val obj = getItem(position)
-        obj?.setAdapterListener(listener)
+
         holder.bind(getBindingVariable(), obj!!)
+
+        holder.itemView.setOnClickListener{
+            listener?.onItemClicked(obj)
+        }
     }
 
     protected abstract fun getLayoutIdForPosition(position: Int): Int
 
     protected abstract fun getBindingVariable(): Int
-
-
 
 
 }
