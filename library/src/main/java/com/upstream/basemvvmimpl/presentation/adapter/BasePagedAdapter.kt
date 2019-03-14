@@ -35,6 +35,14 @@ abstract class BasePagedAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>)
         }
     }
 
+    fun addOnItemClickListener(listener : BaseAdapter.AdapterClickListener) {
+        this.listener = listener
+    }
+
+    fun getOnItemClickListener() : BaseAdapter.AdapterClickListener? {
+        return listener
+    }
+
     protected abstract fun getLayoutIdForPosition(position: Int): Int
 
     protected abstract fun getBindingVariable(): Int
