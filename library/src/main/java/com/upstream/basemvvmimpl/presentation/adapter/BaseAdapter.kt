@@ -70,9 +70,13 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
 
     abstract fun setFilter(query: String)
 
-    protected abstract fun filter(obj: T, query: String): Boolean
+    open fun filter(obj: T, query: String): Boolean {
+        return true
+    }
 
-    protected abstract fun filter(obj: T, filterMap : Map<String, Any>): Boolean
+    open fun filter(obj: T, filterMap : Map<String, Any>): Boolean {
+        return true
+    }
 
     protected abstract fun createItemViewModel(obj: M): T
 }

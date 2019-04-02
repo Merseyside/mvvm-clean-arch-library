@@ -15,7 +15,6 @@ public abstract class BaseCache<T> {
 
     private final String TAG = "BaseCache";
 
-    private final Context context;
     private final File cacheDir;
     private final Serializer serializer;
     private final CacheFileManager fileManager;
@@ -29,8 +28,8 @@ public abstract class BaseCache<T> {
         if (context == null || serializer == null || fileManager == null || executor == null) {
             throw new IllegalArgumentException("Invalid null parameter");
         }
-        this.context = context.getApplicationContext();
-        this.cacheDir = this.context.getCacheDir();
+        Context context1 = context.getApplicationContext();
+        this.cacheDir = context1.getCacheDir();
         this.serializer = serializer;
         this.fileManager = fileManager;
         this.threadExecutor = executor;
@@ -55,7 +54,7 @@ public abstract class BaseCache<T> {
                 } else {
                     emitter.onError(new Exception());
                 }
-            } catch (UndeliverableException e) {}
+            } catch (UndeliverableException ignored) {}
 
         });
     }

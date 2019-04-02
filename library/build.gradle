@@ -9,12 +9,11 @@ android {
     compileSdkVersion 28
 
 
-
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 110
-        versionName "1.10"
+        versionCode 111
+        versionName "1.11"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -60,22 +59,34 @@ artifacts {
     archives javadocJar
 }
 
+
+ext {
+    appCompat = '1.1.0-alpha02'
+    material = '1.1.0-alpha05'
+
+    dagger = '2.18'
+    gson = '2.8.5'
+
+    room = '2.0.0'
+    pagingLibrary = '1.0.1'
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation "androidx.appcompat:appcompat:1.0.2"
-    implementation "com.google.android.material:material:1.1.0-alpha04"
+    implementation "androidx.appcompat:appcompat:$appCompat"
+    implementation "com.google.android.material:material:$material"
 
-    implementation "com.google.dagger:dagger:2.18"
-    kapt "com.google.dagger:dagger-compiler:2.18"
+    implementation "com.google.dagger:dagger:$dagger"
+    kapt "com.google.dagger:dagger-compiler:$dagger"
     compileOnly 'javax.annotation:jsr250-api:1.0'
 
-    implementation "com.google.code.gson:gson:2.8.5"
+    implementation "com.google.code.gson:gson:$gson"
 
-    implementation "android.arch.persistence.room:rxjava2:2.0.0"
-    kapt "android.arch.persistence.room:compiler:2.0.0"
+    implementation "android.arch.persistence.room:rxjava2:$room"
+    kapt "android.arch.persistence.room:compiler:$room"
 
-    implementation "android.arch.paging:runtime:1.0.1"
+    implementation "android.arch.paging:runtime:$pagingLibrary"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

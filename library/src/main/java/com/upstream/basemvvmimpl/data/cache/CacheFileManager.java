@@ -5,7 +5,7 @@ import javax.inject.Singleton;
 import java.io.*;
 
 @Singleton
-public class CacheFileManager {
+class CacheFileManager {
 
     @Inject
     CacheFileManager() {}

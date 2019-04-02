@@ -20,7 +20,7 @@ import kotlin.collections.MutableList
 import kotlin.collections.set
 import kotlin.synchronized
 
-abstract class BaseSortedAdapter<M : Comparable<M>, T : BaseComparableAdapterViewModel<M>> : BaseAdapter<M, T>() {
+abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> : BaseAdapter<M, T>() {
 
     private val TAG = "BaseSortedAdapter"
 

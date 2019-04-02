@@ -3,6 +3,7 @@ package com.upstream.basemvvmimpl.presentation.view;
 import android.view.View;
 
 public interface IView {
+
     void showMsg(String msg);
 
     void handleError(Throwable throwable);

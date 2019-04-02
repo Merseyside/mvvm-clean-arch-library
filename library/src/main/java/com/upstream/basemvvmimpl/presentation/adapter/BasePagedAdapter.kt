@@ -10,6 +10,7 @@ import com.upstream.basemvvmimpl.presentation.view.BaseViewHolder
 
 abstract class BasePagedAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>)
     : PagedListAdapter<T, BaseViewHolder>(diffUtil) {
+
     private val TAG = javaClass.simpleName
 
     private var listener: BaseAdapter.AdapterClickListener? = null

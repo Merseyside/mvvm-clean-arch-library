@@ -72,17 +72,17 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
 
     protected fun showErrorMsg(textMessage: BaseViewModel.TextMessage) {
         if (TextUtils.isEmpty(textMessage.actionMsg)) {
-            showErrorMsg(textMessage.msg!!)
+            showErrorMsg(textMessage.msg)
         } else {
-            showErrorMsg(textMessage.msg!!, textMessage.actionMsg!!, textMessage.listener!!)
+            showErrorMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
         }
     }
 
     protected fun showMsg(textMessage: BaseViewModel.TextMessage) {
         if (TextUtils.isEmpty(textMessage.actionMsg)) {
-            showMsg(textMessage.msg!!)
+            showMsg(textMessage.msg)
         } else {
-            showMsg(textMessage.msg!!, textMessage.actionMsg!!, textMessage.listener!!)
+            showMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
         }
     }
 }

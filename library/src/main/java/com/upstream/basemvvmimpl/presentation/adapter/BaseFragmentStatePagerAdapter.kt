@@ -10,7 +10,7 @@ abstract class BaseFragmentStatePagerAdapter(fm: FragmentManager) : FragmentStat
 
     private val registeredFragments = SparseArray<Fragment>()
 
-    val registeredFragmentsCount: Int
+    private val registeredFragmentsCount: Int
         get() = registeredFragments.size()
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
