@@ -126,6 +126,9 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 add(list)
 
                 onItemsAddListener.onItemsAdded()
+
+                interruptThread(addThread)
+                addThread = null
             }
         }
         addThread!!.start()
@@ -193,6 +196,9 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 update(list)
 
                 onItemsUpdateListener.onItemsUpdated()
+
+                interruptThread(updateThread)
+                updateThread = null
             }
         }
         updateThread!!.start()
