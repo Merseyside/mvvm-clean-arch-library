@@ -4,12 +4,16 @@ import android.content.Context
 
 import android.os.Bundle
 import android.text.TextUtils
+import androidx.activity.OnBackPressedCallback
+import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.upstream.basemvvmimpl.presentation.fragment.BaseFragment
 import com.upstream.basemvvmimpl.presentation.model.BaseViewModel
+import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 import javax.inject.Inject
 
 abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseActivity() {
@@ -84,5 +88,30 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
         } else {
             showMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
         }
+    }
+
+    override fun onBackPressed() {
+
+        val fragment = getCurrentFragment()
+        if (fragment is OnBackPressedListener) {
+            if (fragment.onBackPressed()) {
+                super.onBackPressed()
+            }
+        }
+    }
+
+    @IdRes
+    open fun getFragmentContainer(): Int? {
+        return null
+    }
+
+    private fun getCurrentFragment(res: Int? = getFragmentContainer()): BaseFragment? {
+
+        res?.let {
+            return supportFragmentManager
+                    .findFragmentById(res) as BaseFragment
+        }
+
+        return null
     }
 }

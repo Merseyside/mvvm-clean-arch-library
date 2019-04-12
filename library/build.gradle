@@ -12,8 +12,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 113
-        versionName "1.13"
+        versionCode 120
+        versionName "1.20"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -69,6 +69,8 @@ ext {
 
     room = '2.0.0'
     pagingLibrary = '1.0.1'
+
+    coroutines = '1.1.1'
 }
 
 dependencies {
@@ -86,6 +88,8 @@ dependencies {
     implementation "android.arch.persistence.room:rxjava2:$room"
     kapt "android.arch.persistence.room:compiler:$room"
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
     implementation "android.arch.paging:runtime:$pagingLibrary"
 
     testImplementation 'junit:junit:4.12'
