@@ -20,7 +20,6 @@ import kotlin.collections.Map
 import kotlin.collections.MutableList
 import kotlin.collections.set
 import kotlin.synchronized
-import androidx.annotation.CallSuper
 import com.upstream.basemvvmimpl.presentation.view.BaseViewHolder
 
 
@@ -66,16 +65,16 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         list = SortedList(persistentClass, object : SortedList.Callback<T>() {
             override fun onInserted(position: Int, count: Int) {
                 /* This bug google don't wanna fix for a long long time!*/
-                Handler(Looper.getMainLooper()).post { notifyItemRangeInserted(position, count) }
+                runOnRightThread { notifyItemRangeInserted(position, count) }
             }
 
             override fun onRemoved(position: Int, count: Int) {
-                Handler(Looper.getMainLooper()).post { notifyItemRangeRemoved(position, count) }
+                runOnRightThread { notifyItemRangeRemoved(position, count) }
 
             }
 
             override fun onMoved(fromPosition: Int, toPosition: Int) {
-                Handler(Looper.getMainLooper()).post { notifyItemMoved(fromPosition, toPosition) }
+                runOnRightThread { notifyItemMoved(fromPosition, toPosition) }
             }
 
             override fun compare(o1: T, o2: T): Int {
@@ -84,7 +83,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
             }
 
             override fun onChanged(position: Int, count: Int) {
-                Handler(Looper.getMainLooper()).post { notifyItemRangeChanged(position, count) }
+                runOnRightThread { notifyItemRangeChanged(position, count) }
             }
 
             override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
@@ -113,10 +112,20 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
             fullList.add(listItem)
         }
 
-        Handler(Looper.getMainLooper()).post {
+        runOnRightThread {
             this.list.beginBatchedUpdates()
             this.list.addAll(fullList)
             this.list.endBatchedUpdates()
+        }
+    }
+
+    private fun runOnRightThread(func: () -> Unit) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Handler(Looper.getMainLooper()).post {
+                func()
+            }
+        } else {
+            func()
         }
     }
 
@@ -176,7 +185,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 if (model.isItemsTheSame(obj)) {
                     if (!list.get(i).isContentTheSame(obj)) {
 
-                        Handler(Looper.getMainLooper()).post {
+                        runOnRightThread {
                             notifyItemChanged(i, obj)
                         }
                     }
@@ -369,6 +378,12 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
     override fun getObjForPosition(position: Int): T {
         return list[position]
+    }
+
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+        super.onBindViewHolder(holder, position)
+
+        Log.d(TAG, "pos = $position")
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
