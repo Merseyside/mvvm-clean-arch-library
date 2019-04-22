@@ -64,6 +64,8 @@ abstract class BaseFragment : Fragment(), IView, OnBackPressedListener {
 
     protected abstract fun updateLanguage(context: Context)
 
+    protected abstract fun performInjection()
+
     override fun updateLanguage() {
         context = getApplicationContext()
         setTitle()

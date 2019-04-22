@@ -19,11 +19,6 @@ abstract class BaseDialog : DialogFragment() {
 
     protected lateinit var baseActivity: BaseActivity
 
-    override fun onCreate(onSavedInstanceState: Bundle?) {
-        super.onCreate(onSavedInstanceState)
-        data = arguments
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is BaseActivity) {
@@ -31,27 +26,26 @@ abstract class BaseDialog : DialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreate(onSavedInstanceState: Bundle?) {
+        super.onCreate(onSavedInstanceState)
+        data = arguments
 
-        val root = RelativeLayout(activity)
-        root.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-
-        val dialog = Dialog(baseActivity, R.style.ThemeOverlay_AppCompat_Dialog)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(root)
-        dialog.window!!.decorView.setBackgroundResource(android.R.color.transparent)
-
-        return dialog
+        performInjection()
     }
+
+    protected abstract fun performInjection()
+
+    abstract override fun onCreateDialog(savedInstanceState: Bundle?): Dialog
+
 
     override fun show(fragmentManager: FragmentManager, tag: String?) {
         val transaction = fragmentManager.beginTransaction()
         val prevFragment = fragmentManager.findFragmentByTag(tag)
+
         if (prevFragment != null) {
             transaction.remove(prevFragment)
         }
+
         transaction.addToBackStack(null)
         show(transaction, tag)
     }

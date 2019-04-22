@@ -30,6 +30,8 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         updateLanguage()
     }
 
+    protected abstract fun performInjection()
+
     override fun showMsg(msg: String) {
         showSnackbar(msg, Snackbar.LENGTH_SHORT, Color.BLUE)
     }

@@ -33,8 +33,6 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
     @LayoutRes
     abstract fun setLayoutId(): Int
 
-    protected abstract fun performInjection()
-
     override fun onCreate(savedInstance: Bundle?) {
         performInjection()
         performDataBinding()

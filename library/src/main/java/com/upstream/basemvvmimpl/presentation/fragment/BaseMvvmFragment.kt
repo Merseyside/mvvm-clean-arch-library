@@ -39,8 +39,6 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
         setHasOptionsMenu(false)
     }
 
-    protected abstract fun performInjection()
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewDataBinding = DataBindingUtil.inflate(inflater, setLayoutId(), container, false)
         viewDataBinding.lifecycleOwner = this

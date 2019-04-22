@@ -44,8 +44,6 @@ abstract class BaseMvvmDialog<B : ViewDataBinding, M : BaseViewModel> : BaseDial
         viewModel.messageLiveData.observe(this, messageObserver)
     }
 
-    protected abstract fun performInjection()
-
     abstract fun setBindingVariable(): Int
 
     @LayoutRes
@@ -55,9 +53,9 @@ abstract class BaseMvvmDialog<B : ViewDataBinding, M : BaseViewModel> : BaseDial
 
     private fun showMsg(textMessage: BaseViewModel.TextMessage) {
         if (TextUtils.isEmpty(textMessage.actionMsg)) {
-            showMsg(textMessage.msg!!)
+            showMsg(textMessage.msg)
         } else {
-            showMsg(textMessage.msg!!, textMessage.actionMsg!!, textMessage.listener!!)
+            showMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
         }
     }
 }
