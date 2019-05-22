@@ -4,6 +4,7 @@ import android.content.Context
 
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -73,28 +74,31 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
 
 
     protected fun showErrorMsg(textMessage: BaseViewModel.TextMessage) {
-        if (TextUtils.isEmpty(textMessage.actionMsg)) {
+        if (textMessage.actionMsg.isNullOrEmpty()) {
             showErrorMsg(textMessage.msg)
         } else {
-            showErrorMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
+            showErrorMsg(textMessage.msg, textMessage.actionMsg!!, textMessage.listener!!)
         }
     }
 
     protected fun showMsg(textMessage: BaseViewModel.TextMessage) {
-        if (TextUtils.isEmpty(textMessage.actionMsg)) {
+        if (textMessage.actionMsg.isNullOrEmpty()) {
             showMsg(textMessage.msg)
         } else {
-            showMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
+            showMsg(textMessage.msg, textMessage.actionMsg!!, textMessage.listener!!)
         }
     }
 
     override fun onBackPressed() {
 
         val fragment = getCurrentFragment()
-        if (fragment is OnBackPressedListener) {
+
+        if (fragment != null && fragment is OnBackPressedListener) {
             if (fragment.onBackPressed()) {
                 super.onBackPressed()
             }
+        } else {
+            super.onBackPressed()
         }
     }
 

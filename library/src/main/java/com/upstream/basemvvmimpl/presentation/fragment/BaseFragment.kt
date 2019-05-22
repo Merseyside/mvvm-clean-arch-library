@@ -10,7 +10,7 @@ import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
 import com.upstream.basemvvmimpl.presentation.view.IView
 import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 
-abstract class BaseFragment : Fragment(), IView, OnBackPressedListener {
+abstract class BaseFragment : Fragment(), IView {
 
     private val TAG = "BaseFragment"
     private lateinit var context: Context
@@ -85,10 +85,6 @@ abstract class BaseFragment : Fragment(), IView, OnBackPressedListener {
     override fun onResume() {
         super.onResume()
         updateLanguage()
-    }
-
-    override fun onBackPressed(): Boolean {
-        return true
     }
 
     abstract fun getApplicationContext() : Context

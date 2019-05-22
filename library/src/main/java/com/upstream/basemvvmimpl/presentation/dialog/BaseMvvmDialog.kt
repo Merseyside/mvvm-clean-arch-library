@@ -52,10 +52,10 @@ abstract class BaseMvvmDialog<B : ViewDataBinding, M : BaseViewModel> : BaseDial
     abstract fun setViewModel(): M
 
     private fun showMsg(textMessage: BaseViewModel.TextMessage) {
-        if (TextUtils.isEmpty(textMessage.actionMsg)) {
+        if (textMessage.actionMsg.isNullOrEmpty()) {
             showMsg(textMessage.msg)
         } else {
-            showMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener!!)
+            showMsg(textMessage.msg, textMessage.actionMsg!!, textMessage.listener!!)
         }
     }
 }

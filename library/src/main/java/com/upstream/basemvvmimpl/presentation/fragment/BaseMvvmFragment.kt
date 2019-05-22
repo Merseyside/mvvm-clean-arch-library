@@ -68,18 +68,18 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     protected abstract fun loadingObserver(isLoading: Boolean)
 
     protected fun showErrorMsg(textMessage: BaseViewModel.TextMessage) {
-        if (TextUtils.isEmpty(textMessage.actionMsg)) {
+        if (textMessage.actionMsg.isNullOrEmpty()) {
             showErrorMsg(textMessage.msg)
         } else {
-            showErrorMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener)
+            showErrorMsg(textMessage.msg, textMessage.actionMsg!!, textMessage.listener)
         }
     }
 
     protected fun showMsg(textMessage: BaseViewModel.TextMessage) {
-        if (TextUtils.isEmpty(textMessage.actionMsg)) {
+        if (textMessage.actionMsg.isNullOrEmpty()) {
             showMsg(textMessage.msg)
         } else {
-            showMsg(textMessage.msg, textMessage.actionMsg, textMessage.listener)
+            showMsg(textMessage.msg, textMessage.actionMsg!!, textMessage.listener)
         }
     }
 

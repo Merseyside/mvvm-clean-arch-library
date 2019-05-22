@@ -19,8 +19,8 @@ abstract class BaseViewModel protected constructor(private var bundle: Bundle?) 
     val clearAll: MutableLiveData<Boolean> = MutableLiveData()
 
     inner class TextMessage {
-        var msg: String = "message"
-        var actionMsg: String = "Action"
+        var msg: String = ""
+        var actionMsg: String? = null
         var listener: View.OnClickListener? = null
     }
 
@@ -76,12 +76,15 @@ abstract class BaseViewModel protected constructor(private var bundle: Bundle?) 
 
     protected abstract fun dispose()
 
-    protected abstract fun clearDisposables()
-
     abstract fun updateLanguage(context: Context)
 
     open fun onBackPressed() : Boolean {
         return true
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        dispose()
     }
 
 }
