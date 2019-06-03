@@ -2,7 +2,6 @@ package com.upstream.basemvvmimpl.presentation.activity
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +10,9 @@ import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.upstream.basemvvmimpl.R
+import com.upstream.basemvvmimpl.presentation.utils.getColorFromAttr
 import com.upstream.basemvvmimpl.presentation.view.IActivityView
 
 abstract class BaseActivity : AppCompatActivity(), IActivityView {
@@ -33,24 +32,26 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     protected abstract fun performInjection()
 
     override fun showMsg(msg: String) {
-        showSnackbar(msg, Snackbar.LENGTH_SHORT, Color.BLUE)
-    }
-
-    override fun showErrorMsg(msg: String) {
-        showSnackbar(msg, Snackbar.LENGTH_LONG, Color.RED)
+        showSnackbar(msg, Snackbar.LENGTH_SHORT, getMsgBackgroundColor(), getMsgTextColor())
     }
 
     override fun showMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
-        showSnackbar(msg, Snackbar.LENGTH_INDEFINITE, Color.BLUE, Color.WHITE, actionMsg, clickListener)
+        showSnackbar(msg, Snackbar.LENGTH_INDEFINITE, getMsgBackgroundColor(), getMsgTextColor(),
+            getActionMsgTextColor(), actionMsg, clickListener)
+    }
+
+    override fun showErrorMsg(msg: String) {
+        showSnackbar(msg, Snackbar.LENGTH_LONG, getErrorMsgBackgroundColor(), getErrorMsgTextColor())
     }
 
     override fun showErrorMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
-        showSnackbar(msg, Snackbar.LENGTH_INDEFINITE, Color.RED, Color.WHITE, actionMsg, clickListener)
+        showSnackbar(msg, Snackbar.LENGTH_INDEFINITE, getErrorMsgBackgroundColor(), getErrorMsgTextColor(),
+            getActionErrorMsgTextColor(), actionMsg, clickListener)
     }
 
-    protected fun showSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt actionColor: Int,
-                               actionMsg: String, clickListener: View.OnClickListener?) {
-        val snackbar = createBaseSnackbar(message, length, backgroundColor)
+    protected fun showSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int,
+                               @ColorInt actionColor: Int, actionMsg: String, clickListener: View.OnClickListener?) {
+        val snackbar = createBaseSnackbar(message, length, backgroundColor, textColor)
         var listener = clickListener
 
         if (listener == null)
@@ -62,11 +63,11 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     }
 
 
-    private fun showSnackbar(message: String, length: Int, backgroundColor: Int) {
-        createBaseSnackbar(message, length, backgroundColor).show()
+    private fun showSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int) {
+        createBaseSnackbar(message, length, backgroundColor, textColor).show()
     }
 
-    private fun createBaseSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int): Snackbar {
+    private fun createBaseSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int): Snackbar {
         
         val viewGroup = (findViewById<View>(android.R.id.content) as ViewGroup).getChildAt(0) as ViewGroup
         val snackbar = Snackbar.make(viewGroup, message, length)
@@ -75,7 +76,7 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         snackbarView.setBackgroundColor(backgroundColor)
 
         val snackTextView = snackbarView.findViewById<TextView>(R.id.snackbar_text)
-        snackTextView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+        snackTextView.setTextColor(textColor)
 
         val font = Typeface.createFromAsset(this.assets, "fonts/Roboto-Regular.ttf")
         var tv = snackbar.view.findViewById<TextView>(R.id.snackbar_text)
@@ -92,6 +93,36 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
             val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
         }
+    }
+
+    @ColorInt
+    open fun getMsgBackgroundColor(): Int {
+        return getColorFromAttr(R.attr.colorPrimaryVariant)
+    }
+
+    @ColorInt
+    open fun getErrorMsgBackgroundColor(): Int {
+        return getColorFromAttr(R.attr.colorError)
+    }
+
+    @ColorInt
+    open fun getMsgTextColor(): Int {
+        return getColorFromAttr(R.attr.colorOnPrimary)
+    }
+
+    @ColorInt
+    open fun getErrorMsgTextColor(): Int {
+        return getColorFromAttr(R.attr.colorOnError)
+    }
+
+    @ColorInt
+    open fun getActionMsgTextColor(): Int {
+        return getColorFromAttr(R.attr.colorOnPrimary)
+    }
+
+    @ColorInt
+    open fun getActionErrorMsgTextColor(): Int {
+        return getColorFromAttr(R.attr.colorOnError)
     }
 
 }

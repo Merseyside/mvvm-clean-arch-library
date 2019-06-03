@@ -3,8 +3,10 @@ package com.upstream.basemvvmimpl.presentation.fragment
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import androidx.annotation.CallSuper
+import androidx.appcompat.app.ActionBar
 import androidx.fragment.app.Fragment
 import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
 import com.upstream.basemvvmimpl.presentation.view.IView
@@ -12,7 +14,6 @@ import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 
 abstract class BaseFragment : Fragment(), IView {
 
-    private val TAG = "BaseFragment"
     private lateinit var context: Context
 
     lateinit var baseActivityView: BaseActivity
@@ -34,7 +35,6 @@ abstract class BaseFragment : Fragment(), IView {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(false)
         setTitle()
     }
 
@@ -74,11 +74,15 @@ abstract class BaseFragment : Fragment(), IView {
 
     protected abstract fun getTitle(context: Context): String?
 
-    private fun setTitle(context: Context = getApplicationContext()) {
-        val title = getTitle(context)
-        if (!TextUtils.isEmpty(title) && baseActivityView.supportActionBar != null) {
-            baseActivityView.supportActionBar!!.title = title
+    fun setTitle(title: String? = getTitle(getApplicationContext())) {
+        if (!TextUtils.isEmpty(title) && getActionBar() != null) {
+
+            getActionBar()!!.title = title
         }
+    }
+
+    protected fun getActionBar(): ActionBar? {
+        return baseActivityView.supportActionBar
     }
 
     @CallSuper

@@ -1,5 +1,9 @@
 package com.upstream.basemvvmimpl.presentation.utils
 
+import android.content.Context
+import android.util.Log
+import android.util.TypedValue
+import androidx.annotation.AttrRes
 import androidx.recyclerview.widget.SortedList
 import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
 
@@ -22,4 +26,17 @@ fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isContentEqua
         return isEquals
     }
 
+}
+
+fun Context.getColorFromAttr(
+    @AttrRes attrColor: Int,
+    typedValue: TypedValue = TypedValue(),
+    resolveRefs: Boolean = true
+): Int {
+    theme.resolveAttribute(attrColor, typedValue, resolveRefs)
+    val heh = typedValue.data
+
+    Log.d("Extensions", "$heh")
+
+    return heh
 }

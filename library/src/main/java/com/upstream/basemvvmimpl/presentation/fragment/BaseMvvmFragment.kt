@@ -2,7 +2,6 @@ package com.upstream.basemvvmimpl.presentation.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +10,12 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.upstream.basemvvmimpl.presentation.model.BaseViewModel
 import javax.inject.Inject
 
 abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFragment() {
 
-    protected lateinit var viewDataBinding: B
+    protected lateinit var binding: B
 
     @Inject
     protected lateinit var viewModel: M
@@ -40,15 +38,15 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewDataBinding = DataBindingUtil.inflate(inflater, setLayoutId(), container, false)
-        viewDataBinding.lifecycleOwner = this
-        return viewDataBinding.root
+        binding = DataBindingUtil.inflate(inflater, setLayoutId(), container, false)
+        binding.lifecycleOwner = this
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewDataBinding.setVariable(setBindingVariable(), viewModel)
-        viewDataBinding.executePendingBindings()
+        binding.setVariable(setBindingVariable(), viewModel)
+        binding.executePendingBindings()
 
         viewModel.updateLanguage(context)
         viewModel.errorLiveData.observe(this, errorObserver)

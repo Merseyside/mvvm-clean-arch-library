@@ -47,7 +47,10 @@ abstract class BaseDialog : DialogFragment() {
         }
 
         transaction.addToBackStack(null)
-        show(transaction, tag)
+
+        try {
+            show(transaction, tag)
+        } catch (e: IllegalStateException) {}
     }
 
     fun hideKeyboard() {

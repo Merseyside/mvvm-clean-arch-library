@@ -3,15 +3,11 @@ package com.upstream.basemvvmimpl.presentation.activity
 import android.content.Context
 
 import android.os.Bundle
-import android.text.TextUtils
-import android.util.Log
-import androidx.activity.OnBackPressedCallback
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.upstream.basemvvmimpl.presentation.fragment.BaseFragment
 import com.upstream.basemvvmimpl.presentation.model.BaseViewModel
 import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
@@ -19,7 +15,7 @@ import javax.inject.Inject
 
 abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseActivity() {
 
-    protected lateinit var viewDataBinding: B
+    protected lateinit var binding: B
 
     @Inject
     protected lateinit var viewModel: M
@@ -46,10 +42,10 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
     }
 
     private fun performDataBinding() {
-        viewDataBinding = DataBindingUtil.setContentView(this, setLayoutId())
-        viewDataBinding.lifecycleOwner = this
-        viewDataBinding.setVariable(setBindingVariable(), viewModel)
-        viewDataBinding.executePendingBindings()
+        binding = DataBindingUtil.setContentView(this, setLayoutId())
+        binding.lifecycleOwner = this
+        binding.setVariable(setBindingVariable(), viewModel)
+        binding.executePendingBindings()
     }
 
     private fun observeViewModel() {

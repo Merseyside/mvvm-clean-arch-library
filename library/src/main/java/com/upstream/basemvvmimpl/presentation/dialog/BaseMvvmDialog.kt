@@ -1,7 +1,6 @@
 package com.upstream.basemvvmimpl.presentation.dialog
 
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import com.upstream.basemvvmimpl.presentation.model.BaseViewModel
 
 abstract class BaseMvvmDialog<B : ViewDataBinding, M : BaseViewModel> : BaseDialog() {
 
-    private lateinit var viewDataBinding: B
+    private lateinit var binding: B
     private lateinit var viewModel: M
 
     private val errorObserver = Observer<Throwable> { this.showError(it!!) }
@@ -28,15 +27,15 @@ abstract class BaseMvvmDialog<B : ViewDataBinding, M : BaseViewModel> : BaseDial
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewDataBinding = DataBindingUtil.inflate(inflater, setLayoutId(), container, false)
-        return viewDataBinding.root
+        binding = DataBindingUtil.inflate(inflater, setLayoutId(), container, false)
+        return binding.root
     }
 
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewDataBinding.setVariable(setBindingVariable(), viewModel)
-        viewDataBinding.executePendingBindings()
+        binding.setVariable(setBindingVariable(), viewModel)
+        binding.executePendingBindings()
 
         viewModel.updateLanguage(context!!)
 
