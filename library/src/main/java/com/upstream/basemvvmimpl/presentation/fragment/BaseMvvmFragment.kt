@@ -28,12 +28,14 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
 
     abstract fun setBindingVariable(): Int
 
+    protected abstract fun performInjection(bundle: Bundle?)
+
     @LayoutRes
     abstract fun setLayoutId(): Int
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        performInjection()
+        performInjection(savedInstanceState)
         setHasOptionsMenu(false)
     }
 

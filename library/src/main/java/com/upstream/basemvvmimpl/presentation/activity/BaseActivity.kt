@@ -3,12 +3,14 @@ package com.upstream.basemvvmimpl.presentation.activity
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.upstream.basemvvmimpl.R
@@ -28,8 +30,6 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         super.onResume()
         updateLanguage()
     }
-
-    protected abstract fun performInjection()
 
     override fun showMsg(msg: String) {
         showSnackbar(msg, Snackbar.LENGTH_SHORT, getMsgBackgroundColor(), getMsgTextColor())
@@ -93,6 +93,7 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
             val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
         }
+
     }
 
     @ColorInt

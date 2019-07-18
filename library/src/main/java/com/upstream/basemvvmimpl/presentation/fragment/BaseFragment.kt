@@ -19,8 +19,6 @@ abstract class BaseFragment : Fragment(), IView {
     lateinit var baseActivityView: BaseActivity
         private set
 
-    protected var bundle: Bundle? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         this.context = context
@@ -33,8 +31,9 @@ abstract class BaseFragment : Fragment(), IView {
         return context
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onStart() {
+        super.onStart()
+
         setTitle()
     }
 
@@ -63,8 +62,6 @@ abstract class BaseFragment : Fragment(), IView {
     }
 
     protected abstract fun updateLanguage(context: Context)
-
-    protected abstract fun performInjection()
 
     override fun updateLanguage() {
         context = getApplicationContext()

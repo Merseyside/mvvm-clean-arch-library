@@ -1,7 +1,6 @@
 package com.upstream.basemvvmimpl.presentation.utils
 
 import android.content.Context
-import android.util.Log
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.recyclerview.widget.SortedList
@@ -34,9 +33,6 @@ fun Context.getColorFromAttr(
     resolveRefs: Boolean = true
 ): Int {
     theme.resolveAttribute(attrColor, typedValue, resolveRefs)
-    val heh = typedValue.data
 
-    Log.d("Extensions", "$heh")
-
-    return heh
+    return typedValue.data
 }

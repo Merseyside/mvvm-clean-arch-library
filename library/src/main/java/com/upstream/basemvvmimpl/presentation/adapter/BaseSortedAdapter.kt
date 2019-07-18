@@ -382,8 +382,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
-
-        Log.d(TAG, "pos = $position")
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {

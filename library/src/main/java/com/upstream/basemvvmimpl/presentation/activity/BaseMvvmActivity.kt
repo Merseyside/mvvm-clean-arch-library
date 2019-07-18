@@ -30,8 +30,10 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
     @LayoutRes
     abstract fun setLayoutId(): Int
 
+    protected abstract fun performInjection(bundle: Bundle?)
+
     override fun onCreate(savedInstance: Bundle?) {
-        performInjection()
+        performInjection(savedInstance)
         performDataBinding()
 
         super.onCreate(savedInstance)
@@ -106,8 +108,10 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
     private fun getCurrentFragment(res: Int? = getFragmentContainer()): BaseFragment? {
 
         res?.let {
-            return supportFragmentManager
+            if (supportFragmentManager.findFragmentById(res) is BaseFragment) {
+                return supportFragmentManager
                     .findFragmentById(res) as BaseFragment
+            }
         }
 
         return null

@@ -7,7 +7,7 @@ import androidx.annotation.CallSuper
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.*
 
-abstract class BaseViewModel protected constructor(private var bundle: Bundle?) : ViewModel() {
+abstract class BaseViewModel protected constructor() : ViewModel() {
 
     private val TAG = "BaseViewModel"
 

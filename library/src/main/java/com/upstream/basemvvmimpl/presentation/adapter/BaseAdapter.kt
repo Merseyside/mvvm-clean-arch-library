@@ -40,7 +40,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
 
     protected abstract fun getBindingVariable(): Int
 
-    fun setOnAdapterClickListener(listener: AdapterClickListener) {
+    fun setOnItemClickListener(listener: AdapterClickListener) {
         this.listener = listener
     }
 
