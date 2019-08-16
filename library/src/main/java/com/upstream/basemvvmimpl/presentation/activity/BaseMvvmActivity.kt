@@ -20,8 +20,16 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
     @Inject
     protected lateinit var viewModel: M
 
-    private val errorObserver = Observer<BaseViewModel.TextMessage> { this.showErrorMsg(it!!) }
-    private val messageObserver = Observer<BaseViewModel.TextMessage> { this.showMsg(it!!) }
+    private val messageObserver = Observer<BaseViewModel.TextMessage> { message ->
+        if (message.isError) {
+            showErrorMsg(message!!)
+        } else {
+            showMsg(message)
+        }
+
+        viewModel.messageLiveData.value = null
+    }
+
     private val loadingObserver = Observer<Boolean> { this.loadingObserver(it!!) }
     private val clearObserver = Observer<Boolean>{ clear() }
 
@@ -52,7 +60,6 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
 
     private fun observeViewModel() {
 
-        viewModel.errorMessageLiveData.observe(this, errorObserver)
         viewModel.messageLiveData.observe(this, messageObserver)
         viewModel.isLoadingLiveData.observe(this, loadingObserver)
         viewModel.clearAll.observe(this, clearObserver)
@@ -105,7 +112,7 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
         return null
     }
 
-    private fun getCurrentFragment(res: Int? = getFragmentContainer()): BaseFragment? {
+    protected fun getCurrentFragment(res: Int? = getFragmentContainer()): BaseFragment? {
 
         res?.let {
             if (supportFragmentManager.findFragmentById(res) is BaseFragment) {

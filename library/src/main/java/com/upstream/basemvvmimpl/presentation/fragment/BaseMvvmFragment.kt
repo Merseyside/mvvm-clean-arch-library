@@ -20,9 +20,19 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     @Inject
     protected lateinit var viewModel: M
 
-    private val errorMessageObserver = Observer<BaseViewModel.TextMessage> { this.showErrorMsg(it!!) }
+    private val messageObserver = Observer<BaseViewModel.TextMessage?> { message ->
+        if (message != null) {
+            if (message.isError) {
+                showErrorMsg(message)
+            } else {
+                showMsg(message)
+            }
+
+            viewModel.messageLiveData.value = null
+        }
+    }
+
     private val errorObserver = Observer<Throwable> { this.handleError(it!!) }
-    private val messageObserver = Observer<BaseViewModel.TextMessage> { this.showMsg(it!!) }
     private val loadingObserver = Observer<Boolean> { this.loadingObserver(it!!) }
     private val clearObserver = Observer<Boolean> { clear() }
 
@@ -52,7 +62,6 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
 
         viewModel.updateLanguage(context)
         viewModel.errorLiveData.observe(this, errorObserver)
-        viewModel.errorMessageLiveData.observe(this, errorMessageObserver)
         viewModel.messageLiveData.observe(this, messageObserver)
         viewModel.isLoadingLiveData.observe(this, loadingObserver)
         viewModel.clearAll.observe(this, clearObserver)

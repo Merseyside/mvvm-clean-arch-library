@@ -3,19 +3,18 @@ package com.upstream.basemvvmimpl.presentation.activity
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
-import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
 import com.upstream.basemvvmimpl.R
 import com.upstream.basemvvmimpl.presentation.utils.getColorFromAttr
 import com.upstream.basemvvmimpl.presentation.view.IActivityView
+import com.upstream.basemvvmimpl.presentation.view.IFocusManager
 
 abstract class BaseActivity : AppCompatActivity(), IActivityView {
 
@@ -125,5 +124,4 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     open fun getActionErrorMsgTextColor(): Int {
         return getColorFromAttr(R.attr.colorOnError)
     }
-
 }
