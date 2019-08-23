@@ -3,7 +3,7 @@ package com.upstream.basemvvmimpl.data.cache;
 import android.content.Context;
 import com.upstream.basemvvmimpl.data.cache.serializer.Serializer;
 import com.upstream.basemvvmimpl.domain.executor.ThreadExecutor;
-import com.upstream.basemvvmimpl.presentation.utils.PreferenceManager;
+import com.upstream.basemvvmimpl.utils.PreferenceManager;
 
 public abstract class BaseCachePreference<T> extends BaseCache<T> {
 

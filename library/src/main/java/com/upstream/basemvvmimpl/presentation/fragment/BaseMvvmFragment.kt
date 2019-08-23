@@ -40,9 +40,6 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
 
     protected abstract fun performInjection(bundle: Bundle?)
 
-    @LayoutRes
-    abstract fun setLayoutId(): Int
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         performInjection(savedInstanceState)
@@ -56,20 +53,20 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+
         binding.setVariable(setBindingVariable(), viewModel)
         binding.executePendingBindings()
 
-        viewModel.updateLanguage(context)
         viewModel.errorLiveData.observe(this, errorObserver)
         viewModel.messageLiveData.observe(this, messageObserver)
         viewModel.isLoadingLiveData.observe(this, loadingObserver)
         viewModel.clearAll.observe(this, clearObserver)
+
+        super.onViewCreated(view, savedInstanceState)
     }
 
     protected abstract fun clear()
 
-    @CallSuper
     override fun updateLanguage(context: Context) {
         viewModel.updateLanguage(context)
     }

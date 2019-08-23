@@ -1,4 +1,4 @@
-package com.upstream.basemvvmimpl.presentation.utils
+package com.upstream.basemvvmimpl.utils
 
 import android.content.Context
 import android.util.TypedValue

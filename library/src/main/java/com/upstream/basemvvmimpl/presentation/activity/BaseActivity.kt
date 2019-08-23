@@ -3,31 +3,66 @@ package com.upstream.basemvvmimpl.presentation.activity
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import com.upstream.basemvvmimpl.BaseApplication
 import com.upstream.basemvvmimpl.R
-import com.upstream.basemvvmimpl.presentation.utils.getColorFromAttr
+import com.upstream.basemvvmimpl.presentation.fragment.BaseFragment
+import com.upstream.basemvvmimpl.utils.getColorFromAttr
 import com.upstream.basemvvmimpl.presentation.view.IActivityView
-import com.upstream.basemvvmimpl.presentation.view.IFocusManager
+import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
+import com.upstream.basemvvmimpl.utils.LocaleManager
 
 abstract class BaseActivity : AppCompatActivity(), IActivityView {
 
     private val TAG = "BaseActivity"
 
+    private lateinit var application: BaseApplication
+
+    override fun attachBaseContext(newBase: Context?) {
+
+        super.attachBaseContext(LocaleManager(newBase!!).setLocale(newBase))
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        application = applicationContext as BaseApplication
+    }
+
     abstract fun updateLanguage(context: Context)
 
-    override fun updateLanguage() {}
+    override fun updateLanguage(lang: String?) {
+
+        val language = lang ?: getLanguage()
+
+        Log.d(TAG, "lang = $language")
+
+        if (language != null) {
+            val context = application.setLanguage(language)
+
+            getCurrentFragment()?.updateLanguage(context)
+            updateLanguage(context)
+        }
+    }
+
+    override fun getLanguage(): String? {
+        return application.getLanguage()
+    }
+
 
     @CallSuper
     override fun onResume() {
         super.onResume()
-        updateLanguage()
     }
 
     override fun showMsg(msg: String) {
@@ -123,5 +158,41 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     @ColorInt
     open fun getActionErrorMsgTextColor(): Int {
         return getColorFromAttr(R.attr.colorOnError)
+    }
+
+    override fun onBackPressed() {
+
+        val fragment = getCurrentFragment()
+
+        if (fragment != null && fragment is OnBackPressedListener) {
+            if (fragment.onBackPressed()) {
+                super.onBackPressed()
+            }
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    @IdRes
+    open fun getFragmentContainer(): Int? {
+        return null
+    }
+
+    protected fun getCurrentFragment(res: Int? = getFragmentContainer()): BaseFragment? {
+
+        res?.let {
+            if (supportFragmentManager.findFragmentById(res) is BaseFragment) {
+                return supportFragmentManager
+                    .findFragmentById(res) as BaseFragment
+            }
+        }
+
+        return null
+    }
+
+    companion object {
+        private const val TAG = "BaseActivity"
+
+        private const val LANG_KEY = "language"
     }
 }

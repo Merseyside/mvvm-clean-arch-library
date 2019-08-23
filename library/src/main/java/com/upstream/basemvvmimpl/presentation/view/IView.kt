@@ -14,5 +14,5 @@ interface IView {
 
     fun showErrorMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?)
 
-    fun updateLanguage()
+    fun updateLanguage(lang: String? = null)
 }

@@ -3,10 +3,9 @@ package com.upstream.basemvvmimpl.presentation.adapter
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import androidx.recyclerview.widget.SortedList
 import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
-import com.upstream.basemvvmimpl.presentation.utils.isContentEquals
+import com.upstream.basemvvmimpl.utils.isContentEquals
 import java.lang.reflect.ParameterizedType
 import java.util.*
 import kotlin.Any
@@ -52,7 +51,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
     private val lock = Any()
 
     private var isFiltered = false
-    private var isOnlyUpdateWithoutAdd = false
 
     private val filtersMap = HashMap<String, Any>()
     private val notAppliedFiltersMap = HashMap<String, Any>()
@@ -70,7 +68,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
             override fun onRemoved(position: Int, count: Int) {
                 runOnRightThread { notifyItemRangeRemoved(position, count) }
-
             }
 
             override fun onMoved(fromPosition: Int, toPosition: Int) {
@@ -79,7 +76,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
             override fun compare(o1: T, o2: T): Int {
                 return comparator.compare(o1, o2)
-
             }
 
             override fun onChanged(position: Int, count: Int) {
@@ -129,14 +125,14 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         }
     }
 
-    fun addAsync(list: List<M>, onItemsAddListener: OnItemsAddListener) {
+    fun addAsync(list: List<M>, onItemsAddListener: OnItemsAddListener? = null) {
         addThread = Thread {
             synchronized(lock) {
                 add(list)
 
-                onItemsAddListener.onItemsAdded()
+                onItemsAddListener?.onItemsAdded()
 
-                interruptThread(addThread)
+                //interruptThread(addThread)
                 addThread = null
             }
         }
@@ -144,7 +140,11 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
     }
 
-    fun update(list: List<M>) {
+    fun update(
+        list: List<M>,
+        isAddNew: Boolean = true,
+        isDeleteOld: Boolean = false
+    ) {
         if (!isFiltered) {
             val removeList = ArrayList<T>()
             for (i in 0 until this.list.size()) {
@@ -159,8 +159,11 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 if (!isFound)
                     removeList.add(model)
             }
-            for (removeItem in removeList) {
-                remove(removeItem)
+
+            if (isDeleteOld) {
+                for (removeItem in removeList) {
+                    remove(removeItem)
+                }
             }
         }
 
@@ -172,8 +175,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 }
         }
 
-        if (!isOnlyUpdateWithoutAdd)
-            add(addList)
+        if (isAddNew) add(addList)
     }
 
     private fun update(obj: M): Boolean {
@@ -199,12 +201,17 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         return isFound
     }
 
-    fun updateAsync(list: List<M>, onItemsUpdateListener: OnItemUpdateListener) {
+    fun updateAsync(
+        list: List<M>,
+        isAddNew: Boolean = true,
+        isDeleteOld: Boolean = false,
+        onItemsUpdateListener: OnItemUpdateListener? = null
+    ) {
         updateThread = Thread {
             synchronized(lock) {
-                update(list)
+                update(list, isAddNew, isDeleteOld)
 
-                onItemsUpdateListener.onItemsUpdated()
+                onItemsUpdateListener?.onItemsUpdated()
 
                 interruptThread(updateThread)
                 updateThread = null
@@ -372,21 +379,29 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         return fullList.size != 0
     }
 
-    protected fun setOnlyUpdateWithoutAdd(isOnlyUpdate: Boolean) {
-        this.isOnlyUpdateWithoutAdd = isOnlyUpdate
+    @Throws(IllegalArgumentException::class)
+    override fun getPositionOfObj(obj: M): Int {
+        (0 until itemCount).forEach {
+            if (list.get(it).getItem() == obj) return it
+        }
+
+        throw IllegalArgumentException("No data found")
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override fun notifyItemChanged(obj: M) {
+        val index = getPositionOfObj(obj)
+
+        notifyItemChanged(index, obj)
     }
 
     override fun getObjForPosition(position: Int): T {
         return list[position]
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
-        super.onBindViewHolder(holder, position)
-    }
-
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
 
-        if (!payloads.isEmpty()) {
+        if (payloads.isNotEmpty()) {
             getList().get(position).setItem(payloads[0] as M)
         } else {
             super.onBindViewHolder(holder, position, payloads)

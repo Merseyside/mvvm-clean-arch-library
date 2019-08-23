@@ -4,8 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.CallSuper
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
 import androidx.fragment.app.Fragment
 import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
@@ -14,21 +17,35 @@ import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 
 abstract class BaseFragment : Fragment(), IView {
 
-    private lateinit var context: Context
-
     lateinit var baseActivityView: BaseActivity
         private set
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        this.context = context
         if (context is BaseActivity) {
             baseActivityView = context
         }
     }
 
     override fun getContext(): Context {
-        return context
+        return baseActivityView
+    }
+
+    fun getLanguage(): String {
+        return baseActivityView.getLanguage() ?: "en"
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(setLayoutId(), container, false)
+    }
+
+    @LayoutRes
+    abstract fun setLayoutId(): Int
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        updateLanguage(context)
     }
 
     override fun onStart() {
@@ -61,17 +78,17 @@ abstract class BaseFragment : Fragment(), IView {
         baseActivityView.showErrorMsg(msg, actionMsg, clickListener)
     }
 
-    protected abstract fun updateLanguage(context: Context)
+    abstract fun updateLanguage(context: Context)
 
-    override fun updateLanguage() {
-        context = getApplicationContext()
+    override fun updateLanguage(lang: String?) {
+        baseActivityView.updateLanguage(lang)
+
         setTitle()
-        updateLanguage(context)
     }
 
     protected abstract fun getTitle(context: Context): String?
 
-    fun setTitle(title: String? = getTitle(getApplicationContext())) {
+    fun setTitle(title: String? = getTitle(baseActivityView)) {
         if (!TextUtils.isEmpty(title) && getActionBar() != null) {
 
             getActionBar()!!.title = title
@@ -87,6 +104,4 @@ abstract class BaseFragment : Fragment(), IView {
         super.onResume()
         updateLanguage()
     }
-
-    abstract fun getApplicationContext() : Context
 }

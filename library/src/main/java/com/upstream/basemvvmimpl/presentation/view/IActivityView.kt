@@ -5,4 +5,6 @@ interface IActivityView : IView {
     fun hideKeyboard()
 
     fun onBackPressed()
+
+    fun getLanguage(): String?
 }

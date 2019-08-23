@@ -7,6 +7,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.upstream.basemvvmimpl.presentation.model.BaseAdapterViewModel
 import com.upstream.basemvvmimpl.presentation.view.BaseViewHolder
+import java.lang.IllegalArgumentException
 import java.util.*
 
 abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapter<BaseViewHolder>() {
@@ -66,6 +67,20 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
     open fun removeAll() {
         list.clear()
         notifyDataSetChanged()
+    }
+
+    open fun getPositionOfObj(obj: M): Int {
+        list.forEachIndexed { index, t ->
+            if (t.getItem() == obj) return index
+        }
+
+        throw IllegalArgumentException("No data found")
+    }
+
+    open fun notifyItemChanged(obj: M) {
+        val index = getPositionOfObj(obj)
+
+        notifyItemChanged(index, obj)
     }
 
     abstract fun setFilter(query: String)

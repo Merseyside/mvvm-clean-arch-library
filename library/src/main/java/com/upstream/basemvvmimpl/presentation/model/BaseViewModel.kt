@@ -83,10 +83,12 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
 
     @CallSuper
     fun hideProgress() {
-        inProgress.set(false)
-        progressText.set(null)
+        if (isLoadingLiveData.value == true) {
+            inProgress.set(false)
+            progressText.set(null)
 
-        isLoadingLiveData.value = false
+            isLoadingLiveData.value = false
+        }
     }
 
     protected abstract fun dispose()

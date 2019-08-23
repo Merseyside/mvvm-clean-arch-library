@@ -93,34 +93,4 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
             showMsg(textMessage.msg, textMessage.actionMsg!!, textMessage.listener!!)
         }
     }
-
-    override fun onBackPressed() {
-
-        val fragment = getCurrentFragment()
-
-        if (fragment != null && fragment is OnBackPressedListener) {
-            if (fragment.onBackPressed()) {
-                super.onBackPressed()
-            }
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    @IdRes
-    open fun getFragmentContainer(): Int? {
-        return null
-    }
-
-    protected fun getCurrentFragment(res: Int? = getFragmentContainer()): BaseFragment? {
-
-        res?.let {
-            if (supportFragmentManager.findFragmentById(res) is BaseFragment) {
-                return supportFragmentManager
-                    .findFragmentById(res) as BaseFragment
-            }
-        }
-
-        return null
-    }
 }

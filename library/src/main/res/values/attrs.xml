@@ -3,6 +3,9 @@
 
     <declare-styleable name="ProgressBarAttr">
         <attr name="text" format="string"/>
+        <attr name="backgroundColor"/>
+        <attr name="textColor" format="reference"/>
+        <attr name="progressColor" format="reference"/>
     </declare-styleable>
 
 </resources>
