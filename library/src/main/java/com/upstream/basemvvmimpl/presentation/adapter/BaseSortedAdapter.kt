@@ -375,7 +375,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         }
     }
 
-    fun hasItems(): Boolean {
+    override fun hasItems(): Boolean {
         return fullList.size != 0
     }
 

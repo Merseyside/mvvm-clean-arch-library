@@ -16,7 +16,11 @@ abstract class BaseApplication : Application() {
     override fun attachBaseContext(base: Context) {
         localeManager = LocaleManager(base)
 
-        context = localeManager.setLocale(base)
+        context = if (localeManager.language.isNullOrEmpty()) {
+            localeManager.setNewLocale(base, getBaseLanguage())
+        } else {
+            localeManager.setLocale(base)
+        }
         super.attachBaseContext(context)
     }
 
@@ -43,6 +47,8 @@ abstract class BaseApplication : Application() {
     fun getActualString(@StringRes id: Int): String {
         return context.getString(id)
     }
+
+    abstract fun getBaseLanguage(): String
 
     companion object {
         private const val TAG = "BaseApplication"

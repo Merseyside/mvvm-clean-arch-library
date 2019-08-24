@@ -15,7 +15,7 @@ class LocaleManager(context: Context) {
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     val language: String?
-        get() = prefs.getString(LANGUAGE_KEY, LANGUAGE_ENGLISH)
+        get() = prefs.getString(LANGUAGE_KEY, "")
 
     fun setLocale(c: Context): Context {
         return updateResources(c, language)

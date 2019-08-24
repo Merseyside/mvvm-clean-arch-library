@@ -93,5 +93,9 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         return true
     }
 
+    open fun hasItems(): Boolean {
+        return list.isNotEmpty()
+    }
+
     protected abstract fun createItemViewModel(obj: M): T
 }
