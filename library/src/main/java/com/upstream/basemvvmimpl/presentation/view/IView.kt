@@ -4,15 +4,11 @@ import android.view.View
 
 interface IView {
 
-    fun showMsg(msg: String)
+    fun showMsg(msg: String, actionMsg: String? = null, clickListener: View.OnClickListener? = null)
 
     fun handleError(throwable: Throwable)
 
-    fun showErrorMsg(msg: String)
-
-    fun showMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?)
-
-    fun showErrorMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?)
+    fun showErrorMsg(msg: String, actionMsg: String? = null, clickListener: View.OnClickListener? = null)
 
     fun updateLanguage(lang: String? = null)
 }

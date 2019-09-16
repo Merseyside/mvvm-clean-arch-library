@@ -18,4 +18,6 @@ abstract class BaseAdapterViewModel<M> : BaseObservable() {
     abstract fun getItem(): M
 
     abstract fun setItem(item: M)
+
+    abstract fun areItemsTheSame(obj: M): Boolean
 }

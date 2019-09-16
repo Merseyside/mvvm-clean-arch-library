@@ -3,7 +3,6 @@ package com.upstream.basemvvmimpl.presentation.fragment
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +12,10 @@ import androidx.appcompat.app.ActionBar
 import androidx.fragment.app.Fragment
 import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
 import com.upstream.basemvvmimpl.presentation.view.IView
-import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 
 abstract class BaseFragment : Fragment(), IView {
 
-    lateinit var baseActivityView: BaseActivity
+    protected lateinit var baseActivityView: BaseActivity
         private set
 
     override fun onAttach(context: Context) {
@@ -32,7 +30,7 @@ abstract class BaseFragment : Fragment(), IView {
     }
 
     fun getLanguage(): String {
-        return baseActivityView.getLanguage() ?: "en"
+        return baseActivityView.getLanguage()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -58,23 +56,15 @@ abstract class BaseFragment : Fragment(), IView {
         baseActivityView.hideKeyboard()
     }
 
-    override fun showMsg(msg: String) {
-        baseActivityView.showMsg(msg)
-    }
-
     override fun handleError(throwable: Throwable) {
         baseActivityView.handleError(throwable)
     }
 
-    override fun showErrorMsg(msg: String) {
-        baseActivityView.showErrorMsg(msg)
-    }
-
-    override fun showMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
+    override fun showMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
         baseActivityView.showMsg(msg, actionMsg, clickListener)
     }
 
-    override fun showErrorMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
+    override fun showErrorMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
         baseActivityView.showErrorMsg(msg, actionMsg, clickListener)
     }
 

@@ -64,6 +64,24 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         notifyDataSetChanged()
     }
 
+    open fun remove(obj: M) {
+        val foundObj = list.firstOrNull { it.areItemsTheSame(obj) }
+
+        if (foundObj != null) {
+            remove(foundObj)
+        }
+    }
+
+    open fun remove(list: List<M>) {
+        list.forEach {
+            remove(it)
+        }
+    }
+
+    private fun remove(obj: T) {
+        list.remove(obj)
+    }
+
     open fun removeAll() {
         list.clear()
         notifyDataSetChanged()
@@ -77,6 +95,10 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         throw IllegalArgumentException("No data found")
     }
 
+    /**
+     * Call this when actual object has already changed
+     * @param obj is changed object
+     */
     open fun notifyItemChanged(obj: M) {
         val index = getPositionOfObj(obj)
 
@@ -86,13 +108,16 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
     abstract fun setFilter(query: String)
 
     open fun filter(obj: T, query: String): Boolean {
-        return true
+        throw NotImplementedError()
     }
 
     open fun filter(obj: T, filterMap : Map<String, Any>): Boolean {
-        return true
+        throw NotImplementedError()
     }
 
+    /**
+     * @return true if list has items else - false
+     */
     open fun hasItems(): Boolean {
         return list.isNotEmpty()
     }

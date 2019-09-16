@@ -47,15 +47,14 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
 
         Log.d(TAG, "lang = $language")
 
-        if (language != null) {
-            val context = application.setLanguage(language)
+        val context = application.setLanguage(language)
 
-            getCurrentFragment()?.updateLanguage(context)
-            updateLanguage(context)
-        }
+        getCurrentFragment()?.updateLanguage(context)
+        updateLanguage(context)
+
     }
 
-    override fun getLanguage(): String? {
+    override fun getLanguage(): String {
         return application.getLanguage()
     }
 
@@ -65,43 +64,67 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         super.onResume()
     }
 
-    override fun showMsg(msg: String) {
-        showSnackbar(msg, Snackbar.LENGTH_SHORT, getMsgBackgroundColor(), getMsgTextColor())
+    override fun showMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
+
+        val length = if (!actionMsg.isNullOrEmpty()) {
+            Snackbar.LENGTH_INDEFINITE
+        } else {
+            Snackbar.LENGTH_SHORT
+        }
+
+        showSnackbar(
+            message = msg,
+            length = length,
+            backgroundColor = getMsgBackgroundColor(),
+            textColor = getMsgTextColor(),
+            actionColor = getActionMsgTextColor(),
+            actionMsg = actionMsg,
+            clickListener = clickListener)
     }
 
-    override fun showMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
-        showSnackbar(msg, Snackbar.LENGTH_INDEFINITE, getMsgBackgroundColor(), getMsgTextColor(),
-            getActionMsgTextColor(), actionMsg, clickListener)
+    override fun showErrorMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
+
+        val length = if (!actionMsg.isNullOrEmpty()) {
+            Snackbar.LENGTH_INDEFINITE
+        } else {
+            Snackbar.LENGTH_LONG
+        }
+
+        showSnackbar(message = msg,
+            length = length,
+            backgroundColor = getErrorMsgBackgroundColor(),
+            textColor = getErrorMsgTextColor(),
+            actionColor = getActionErrorMsgTextColor(),
+            actionMsg = actionMsg,
+            clickListener = clickListener
+        )
     }
 
-    override fun showErrorMsg(msg: String) {
-        showSnackbar(msg, Snackbar.LENGTH_LONG, getErrorMsgBackgroundColor(), getErrorMsgTextColor())
+    fun showSnackbar(
+        message: String,
+        length: Int,
+        @ColorInt backgroundColor: Int,
+        @ColorInt textColor: Int,
+        @ColorInt actionColor: Int,
+        actionMsg: String?,
+        clickListener: View.OnClickListener?
+    ) {
+        createSnackbar(message, length, backgroundColor, textColor).apply {
+
+            if (!actionMsg.isNullOrEmpty()) {
+                var listener = clickListener
+
+                if (listener == null) listener = View.OnClickListener {}
+
+                setAction(actionMsg, listener)
+                setActionTextColor(actionColor)
+            }
+
+            show()
+        }
     }
 
-    override fun showErrorMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
-        showSnackbar(msg, Snackbar.LENGTH_INDEFINITE, getErrorMsgBackgroundColor(), getErrorMsgTextColor(),
-            getActionErrorMsgTextColor(), actionMsg, clickListener)
-    }
-
-    protected fun showSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int,
-                               @ColorInt actionColor: Int, actionMsg: String, clickListener: View.OnClickListener?) {
-        val snackbar = createBaseSnackbar(message, length, backgroundColor, textColor)
-        var listener = clickListener
-
-        if (listener == null)
-            listener = View.OnClickListener {}
-
-        snackbar.setAction(actionMsg, listener)
-        snackbar.setActionTextColor(actionColor)
-        snackbar.show()
-    }
-
-
-    private fun showSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int) {
-        createBaseSnackbar(message, length, backgroundColor, textColor).show()
-    }
-
-    private fun createBaseSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int): Snackbar {
+    private fun createSnackbar(message: String, length: Int, @ColorInt backgroundColor: Int, @ColorInt textColor: Int): Snackbar {
         
         val viewGroup = (findViewById<View>(android.R.id.content) as ViewGroup).getChildAt(0) as ViewGroup
         val snackbar = Snackbar.make(viewGroup, message, length)

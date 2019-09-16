@@ -13,20 +13,20 @@ import javax.inject.Singleton;
 @Singleton
 public class Serializer {
 
-  private final Gson gson;
+    private final Gson gson;
 
-  @Inject
-  Serializer() {
-      gson = new GsonBuilder()
-          .setLenient()
-          .create();
-  }
+    @Inject
+    Serializer() {
+        gson = new GsonBuilder()
+            .setLenient()
+            .create();
+    }
 
-  public String serialize(Object object, Class clazz) {
-    return gson.toJson(object, clazz);
-  }
+    public String serialize(Object object, Class clazz) {
+      return gson.toJson(object, clazz);
+    }
 
-  public <T> T deserialize(String string, Class<T> clazz) {
+    public <T> T deserialize(String string, Class<T> clazz) {
     return gson.fromJson(string, clazz);
   }
 }

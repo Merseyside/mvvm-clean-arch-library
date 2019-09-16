@@ -16,7 +16,7 @@ abstract class BaseApplication : Application() {
     override fun attachBaseContext(base: Context) {
         localeManager = LocaleManager(base)
 
-        context = if (localeManager.language.isNullOrEmpty()) {
+        context = if (localeManager.language.isEmpty()) {
             localeManager.setNewLocale(base, getBaseLanguage())
         } else {
             localeManager.setLocale(base)
@@ -36,7 +36,7 @@ abstract class BaseApplication : Application() {
         return context
     }
 
-    fun getLanguage(): String? {
+    fun getLanguage(): String {
         return localeManager.language
     }
 

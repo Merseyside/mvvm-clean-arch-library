@@ -16,7 +16,7 @@ fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isContentEqua
         var isEquals = true
         list.forEachIndexed { index, t ->
             val value = this.get(index)
-            if (!value.isItemsTheSame(t.getItem())) {
+            if (!value.areItemsTheSame(t.getItem())) {
                 isEquals = false
                 return@forEachIndexed
             }
