@@ -3,21 +3,46 @@ package com.upstream.basemvvmimpl.presentation.model
 import androidx.databinding.BaseObservable
 import com.upstream.basemvvmimpl.presentation.adapter.BaseAdapter
 
-abstract class BaseAdapterViewModel<M> : BaseObservable() {
+abstract class BaseAdapterViewModel<M>(
+    obj: M
+) : BaseObservable() {
 
-    private var listener: BaseAdapter.AdapterClickListener? = null
+    abstract var obj: M
 
-    fun setAdapterListener(listener: BaseAdapter.AdapterClickListener?) {
-        this.listener = listener
+    init {
+        this.obj = obj
     }
 
-    fun getClickListener(): BaseAdapter.AdapterClickListener? {
-        return listener
+    private val listeners: MutableList<BaseAdapter.OnItemClickListener<M>> by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
+
+    fun setOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
+        this.listeners.add(listener)
     }
 
-    abstract fun getItem(): M
+    fun removeOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
+        listeners.remove(listener).toString()
+    }
 
-    abstract fun setItem(item: M)
+    fun onClick() {
+        if (listeners.isNotEmpty()) {
+            listeners.forEach { it.onItemClicked(obj) }
+        }
+    }
+
+    open fun setItem(item: M) {
+        this.obj = item
+        notifyUpdate()
+    }
+
+    fun getItem(): M {
+        return obj
+    }
 
     abstract fun areItemsTheSame(obj: M): Boolean
+
+    abstract fun notifyUpdate()
+
+    companion object {
+        private const val TAG = "BaseAdapterViewModel"
+    }
 }

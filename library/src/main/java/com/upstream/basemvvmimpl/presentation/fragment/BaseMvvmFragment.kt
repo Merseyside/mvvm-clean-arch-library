@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
 import com.upstream.basemvvmimpl.presentation.model.BaseViewModel
+import com.upstream.basemvvmimpl.presentation.model.ParcelableViewModel
 import javax.inject.Inject
 
 abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFragment() {
@@ -35,6 +36,13 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     private val errorObserver = Observer<Throwable> { this.handleError(it!!) }
     private val loadingObserver = Observer<Boolean> { this.loadingObserver(it!!) }
     private val clearObserver = Observer<Boolean> { clear() }
+    private val alertDialogModel = Observer<BaseViewModel.AlertDialogModel> {
+        it?.apply {
+            showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable)
+
+            viewModel.alertDialogLiveData.value = null
+        }
+    }
 
     abstract fun setBindingVariable(): Int
 
@@ -61,8 +69,17 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
         viewModel.messageLiveData.observe(this, messageObserver)
         viewModel.isLoadingLiveData.observe(this, loadingObserver)
         viewModel.clearAll.observe(this, clearObserver)
+        viewModel.alertDialogLiveData.observe(this, alertDialogModel)
 
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        if (viewModel is ParcelableViewModel) {
+            (viewModel as ParcelableViewModel).writeTo(outState)
+        }
     }
 
     protected abstract fun clear()
@@ -96,5 +113,4 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     protected fun hideProgress() {
         viewModel.hideProgress()
     }
-
 }

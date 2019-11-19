@@ -13,20 +13,23 @@ import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
 import com.upstream.basemvvmimpl.BaseApplication
 import com.upstream.basemvvmimpl.R
+import com.upstream.basemvvmimpl.presentation.dialog.MaterialAlertDialog
 import com.upstream.basemvvmimpl.presentation.fragment.BaseFragment
 import com.upstream.basemvvmimpl.utils.getColorFromAttr
 import com.upstream.basemvvmimpl.presentation.view.IActivityView
 import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 import com.upstream.basemvvmimpl.utils.LocaleManager
+import java.lang.IllegalStateException
 
 abstract class BaseActivity : AppCompatActivity(), IActivityView {
 
     private val TAG = "BaseActivity"
 
-    private lateinit var application: BaseApplication
+    private var application: BaseApplication? = null
 
     override fun attachBaseContext(newBase: Context?) {
 
@@ -36,26 +39,33 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        application = applicationContext as BaseApplication
+        if (applicationContext is BaseApplication) {
+            application = applicationContext as BaseApplication
+        }
+
+        getToolbar()?.let {
+            setSupportActionBar(it)
+        }
     }
 
     abstract fun updateLanguage(context: Context)
 
     override fun updateLanguage(lang: String?) {
 
-        val language = lang ?: getLanguage()
+        if (application != null) {
 
-        Log.d(TAG, "lang = $language")
+            val language = lang ?: getLanguage()
 
-        val context = application.setLanguage(language)
+            val context = application!!.setLanguage(language)
 
-        getCurrentFragment()?.updateLanguage(context)
-        updateLanguage(context)
+            getCurrentFragment()?.updateLanguage(context)
+            updateLanguage(context)
+        }
 
     }
 
     override fun getLanguage(): String {
-        return application.getLanguage()
+        return application?.getLanguage() ?: throw IllegalStateException("Please, extend your application from BaseApplication class")
     }
 
 
@@ -211,6 +221,43 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         }
 
         return null
+    }
+
+    override fun showAlertDialog(
+        title: String?,
+        message: String?,
+        positiveButtonText: String?,
+        negativeButtonText: String?,
+        onPositiveClick: () -> Unit,
+        onNegativeClick: () -> Unit,
+        isCancelable: Boolean
+    ) {
+        val dialog = MaterialAlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButtonText(positiveButtonText)
+            .setNegativeButtonText(negativeButtonText)
+            .setOnPositiveClick(onPositiveClick)
+            .setOnNegativeClick(onNegativeClick)
+            .isCancelable(isCancelable)
+            .build()
+        
+        dialog.show()
+    }
+
+    abstract fun getToolbar(): Toolbar?
+
+    override fun setFragmentToolbar(toolbar: Toolbar?) {
+        if (toolbar != null) {
+            supportActionBar?.hide()
+            setSupportActionBar(toolbar)
+
+        } else {
+            getToolbar()?.let {
+                setSupportActionBar(it)
+                supportActionBar?.show()
+            }
+        }
     }
 
     companion object {

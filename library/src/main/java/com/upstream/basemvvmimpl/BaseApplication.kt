@@ -44,8 +44,8 @@ abstract class BaseApplication : Application() {
         return context
     }
 
-    fun getActualString(@StringRes id: Int): String {
-        return context.getString(id)
+    fun getActualString(@StringRes id: Int, vararg args: String): String {
+        return context.getString(id, *args)
     }
 
     abstract fun getBaseLanguage(): String

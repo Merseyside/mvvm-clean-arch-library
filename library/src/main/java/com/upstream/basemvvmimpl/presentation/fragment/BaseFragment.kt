@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
 import com.upstream.basemvvmimpl.presentation.view.IView
@@ -43,6 +44,10 @@ abstract class BaseFragment : Fragment(), IView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        getToolbar()?.let {
+            baseActivityView.setFragmentToolbar(it)
+        }
+
         updateLanguage(context)
     }
 
@@ -50,6 +55,14 @@ abstract class BaseFragment : Fragment(), IView {
         super.onStart()
 
         setTitle()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        getToolbar()?.let {
+            baseActivityView.setFragmentToolbar(null)
+        }
     }
 
     fun hideKeyboard() {
@@ -85,9 +98,23 @@ abstract class BaseFragment : Fragment(), IView {
         }
     }
 
-    protected fun getActionBar(): ActionBar? {
+    protected open fun getActionBar(): ActionBar? {
         return baseActivityView.supportActionBar
     }
+
+    override fun showAlertDialog(
+        title: String?,
+        message: String?,
+        positiveButtonText: String?,
+        negativeButtonText: String?,
+        onPositiveClick: () -> Unit,
+        onNegativeClick: () -> Unit,
+        isCancelable: Boolean) {
+        
+        baseActivityView.showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable)        
+    }
+
+    abstract fun getToolbar(): Toolbar?
 
     @CallSuper
     override fun onResume() {

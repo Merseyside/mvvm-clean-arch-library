@@ -3,6 +3,7 @@ package com.upstream.basemvvmimpl.utils
 import android.content.Context
 import android.util.TypedValue
 import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.SortedList
 import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
 
@@ -27,6 +28,7 @@ fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isContentEqua
 
 }
 
+@ColorInt
 fun Context.getColorFromAttr(
     @AttrRes attrColor: Int,
     typedValue: TypedValue = TypedValue(),

@@ -6,7 +6,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 
-abstract class BaseFragmentStatePagerAdapter(fm: FragmentManager) : FragmentStatePagerAdapter(fm) {
+abstract class BaseFragmentStatePagerAdapter(
+    fm: FragmentManager,
+    behavior: Int
+) : FragmentStatePagerAdapter(fm, behavior) {
 
     private val registeredFragments = SparseArray<Fragment>()
 

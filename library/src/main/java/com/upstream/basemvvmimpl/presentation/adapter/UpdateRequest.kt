@@ -13,30 +13,32 @@ class UpdateRequest<T> {
     var list: List<T>? = null
     private set
 
-    inner class Builder {
+    class Builder<T> {
 
-        fun isAddNew(bool: Boolean): Builder {
-            isAddNew = bool
+        private val request: UpdateRequest<T> = UpdateRequest()
 
-            return this
-        }
-
-        fun isDeleteOld(bool: Boolean): Builder {
-            isDeleteOld = bool
+        fun isAddNew(bool: Boolean): Builder<T> {
+            request.isAddNew = bool
 
             return this
         }
 
-        fun setList(list: List<T>): Builder {
-            this@UpdateRequest.list = list
+        fun isDeleteOld(bool: Boolean): Builder<T> {
+            request.isDeleteOld = bool
+
+            return this
+        }
+
+        fun setList(list: List<T>): Builder<T> {
+            request.list = list
 
             return this
         }
 
         fun build(): UpdateRequest<T> {
-            if (list != null) {
+            if (request.list != null) {
 
-                return this@UpdateRequest
+                return request
             }
 
             throw IllegalArgumentException("List can not be null")
