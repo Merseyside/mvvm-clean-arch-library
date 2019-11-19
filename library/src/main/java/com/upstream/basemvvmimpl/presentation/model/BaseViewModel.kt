@@ -16,12 +16,23 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     val messageLiveData: MutableLiveData<TextMessage> = MutableLiveData()
     val isLoadingLiveData: MutableLiveData<Boolean> = MutableLiveData()
     val clearAll: MutableLiveData<Boolean> = MutableLiveData()
+    val alertDialogLiveData: MutableLiveData<AlertDialogModel> = MutableLiveData()
 
     data class TextMessage(
         val isError: Boolean = false,
         var msg: String = "",
         var actionMsg: String? = null,
         var listener: View.OnClickListener? = null
+    )
+
+    data class AlertDialogModel(
+        val title: String? = null,
+        val message: String? = null,
+        val positiveButtonText: String? = null,
+        val negativeButtonText: String? = null,
+        val onPositiveClick: () -> Unit = {},
+        val onNegativeClick: () -> Unit = {},
+        val isCancelable: Boolean = true
     )
 
     open fun handleError(throwable: Throwable) {
@@ -89,6 +100,20 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
 
             isLoadingLiveData.value = false
         }
+    }
+
+    fun showAlertDialog(
+        title: String? = null,
+        message: String? = null,
+        positiveButtonText: String? = null,
+        negativeButtonText: String? = null,
+        onPositiveClick: () -> Unit = {},
+        onNegativeClick: () -> Unit = {},
+        isCancelable: Boolean = true
+    ) {
+        alertDialogLiveData.value = AlertDialogModel(
+            title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable
+        )
     }
 
     protected abstract fun dispose()

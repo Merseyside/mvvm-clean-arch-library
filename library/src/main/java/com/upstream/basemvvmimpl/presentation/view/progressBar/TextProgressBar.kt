@@ -10,7 +10,6 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.upstream.basemvvmimpl.R
 
@@ -40,8 +39,8 @@ class TextProgressBar(context: Context, attributeSet: AttributeSet): LinearLayou
         val array = context.theme.obtainStyledAttributes(attributeSet, R.styleable.ProgressBarAttr, 0, 0)
 
         textValue = array.getString(R.styleable.ProgressBarAttr_text) ?: ""
-        bgColor = array.getColor(R.styleable.ProgressBarAttr_backgroundColor, ContextCompat.getColor(context, R.color.default_bg_color))
-        textColor = array.getColor(R.styleable.ProgressBarAttr_textColor, ContextCompat.getColor(context, R.color.default_text_color))
+        bgColor = array.getColor(R.styleable.ProgressBarAttr_backgroundColor, ContextCompat.getColor(context, R.color.default_progress_bg_color))
+        textColor = array.getColor(R.styleable.ProgressBarAttr_textColor, ContextCompat.getColor(context, R.color.default_progress_text_color))
         progressColor = array.getColor(R.styleable.ProgressBarAttr_progressColor, ContextCompat.getColor(context, R.color.default_progress_color))
     }
 

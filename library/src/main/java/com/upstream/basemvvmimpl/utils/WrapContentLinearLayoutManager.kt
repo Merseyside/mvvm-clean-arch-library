@@ -10,8 +10,7 @@ constructor(context: Context, orientation: Int, reverseLayout: Boolean) : Linear
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
         try {
             super.onLayoutChildren(recycler, state)
-        } catch (ignored: IndexOutOfBoundsException) {
-        }
+        } catch (ignored: IndexOutOfBoundsException) {}
 
     }
 

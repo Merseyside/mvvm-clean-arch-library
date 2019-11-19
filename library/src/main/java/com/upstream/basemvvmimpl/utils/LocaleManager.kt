@@ -14,8 +14,7 @@ class LocaleManager(context: Context) {
 
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    val language: String?
-        get() = prefs.getString(LANGUAGE_KEY, "")
+    val language: String = prefs.getString(LANGUAGE_KEY, getCurrentLocale(context).language)!!
 
     fun setLocale(c: Context): Context {
         return updateResources(c, language)
@@ -33,7 +32,7 @@ class LocaleManager(context: Context) {
 
     private fun updateResources(context: Context, language: String?): Context {
         var context = context
-        val locale = Locale(language)
+        val locale = Locale(language!!)
         Locale.setDefault(locale)
 
         val res = context.resources
@@ -58,6 +57,14 @@ class LocaleManager(context: Context) {
             return if (Build.VERSION.SDK_INT >= 24) {
                 config.locales.get(0)
             } else config.locale
+        }
+
+        fun getCurrentLocale(context: Context): Locale {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                context.resources.configuration.locales.get(0)
+            } else {
+                context.resources.configuration.locale
+            }
         }
     }
 }

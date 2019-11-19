@@ -3,14 +3,12 @@ package com.upstream.basemvvmimpl.presentation.activity
 import android.content.Context
 
 import android.os.Bundle
-import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
-import com.upstream.basemvvmimpl.presentation.fragment.BaseFragment
 import com.upstream.basemvvmimpl.presentation.model.BaseViewModel
-import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
+import com.upstream.basemvvmimpl.presentation.model.ParcelableViewModel
 import javax.inject.Inject
 
 abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseActivity() {
@@ -32,6 +30,13 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
 
     private val loadingObserver = Observer<Boolean> { this.loadingObserver(it!!) }
     private val clearObserver = Observer<Boolean>{ clear() }
+    private val alertDialogModel = Observer<BaseViewModel.AlertDialogModel> {
+        it.apply {
+            showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable)
+            
+            viewModel.alertDialogLiveData.value = null
+        }
+    }
 
     abstract fun setBindingVariable(): Int
 
@@ -40,15 +45,23 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
 
     protected abstract fun performInjection(bundle: Bundle?)
 
-    override fun onCreate(savedInstance: Bundle?) {
-        performInjection(savedInstance)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        performInjection(savedInstanceState)
         performDataBinding()
 
-        super.onCreate(savedInstance)
+        super.onCreate(savedInstanceState)
 
         viewModel.updateLanguage(this)
 
         observeViewModel()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        if (viewModel is ParcelableViewModel) {
+            (viewModel as ParcelableViewModel).writeTo(outState)
+        }
     }
 
     private fun performDataBinding() {
@@ -63,6 +76,7 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
         viewModel.messageLiveData.observe(this, messageObserver)
         viewModel.isLoadingLiveData.observe(this, loadingObserver)
         viewModel.clearAll.observe(this, clearObserver)
+        viewModel.alertDialogLiveData.observe(this, alertDialogModel)
     }
 
     protected abstract fun clear()

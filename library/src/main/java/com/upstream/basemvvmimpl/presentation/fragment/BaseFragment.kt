@@ -3,21 +3,20 @@ package com.upstream.basemvvmimpl.presentation.fragment
 import android.content.Context
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
 import com.upstream.basemvvmimpl.presentation.view.IView
-import com.upstream.basemvvmimpl.presentation.view.OnBackPressedListener
 
 abstract class BaseFragment : Fragment(), IView {
 
-    lateinit var baseActivityView: BaseActivity
+    protected lateinit var baseActivityView: BaseActivity
         private set
 
     override fun onAttach(context: Context) {
@@ -32,7 +31,7 @@ abstract class BaseFragment : Fragment(), IView {
     }
 
     fun getLanguage(): String {
-        return baseActivityView.getLanguage() ?: "en"
+        return baseActivityView.getLanguage()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -45,6 +44,10 @@ abstract class BaseFragment : Fragment(), IView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        getToolbar()?.let {
+            baseActivityView.setFragmentToolbar(it)
+        }
+
         updateLanguage(context)
     }
 
@@ -54,27 +57,27 @@ abstract class BaseFragment : Fragment(), IView {
         setTitle()
     }
 
-    fun hideKeyboard() {
-        baseActivityView.hideKeyboard()
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        getToolbar()?.let {
+            baseActivityView.setFragmentToolbar(null)
+        }
     }
 
-    override fun showMsg(msg: String) {
-        baseActivityView.showMsg(msg)
+    fun hideKeyboard() {
+        baseActivityView.hideKeyboard()
     }
 
     override fun handleError(throwable: Throwable) {
         baseActivityView.handleError(throwable)
     }
 
-    override fun showErrorMsg(msg: String) {
-        baseActivityView.showErrorMsg(msg)
-    }
-
-    override fun showMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
+    override fun showMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
         baseActivityView.showMsg(msg, actionMsg, clickListener)
     }
 
-    override fun showErrorMsg(msg: String, actionMsg: String, clickListener: View.OnClickListener?) {
+    override fun showErrorMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
         baseActivityView.showErrorMsg(msg, actionMsg, clickListener)
     }
 
@@ -95,9 +98,23 @@ abstract class BaseFragment : Fragment(), IView {
         }
     }
 
-    protected fun getActionBar(): ActionBar? {
+    protected open fun getActionBar(): ActionBar? {
         return baseActivityView.supportActionBar
     }
+
+    override fun showAlertDialog(
+        title: String?,
+        message: String?,
+        positiveButtonText: String?,
+        negativeButtonText: String?,
+        onPositiveClick: () -> Unit,
+        onNegativeClick: () -> Unit,
+        isCancelable: Boolean) {
+        
+        baseActivityView.showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable)        
+    }
+
+    abstract fun getToolbar(): Toolbar?
 
     @CallSuper
     override fun onResume() {

@@ -13,7 +13,7 @@ abstract class BasePagedAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>)
 
     private val TAG = javaClass.simpleName
 
-    private var listener: BaseAdapter.AdapterClickListener? = null
+    private var listener: BaseAdapter.OnItemClickListener<T>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val layoutInflater: LayoutInflater = LayoutInflater.from(parent.context)
@@ -36,11 +36,11 @@ abstract class BasePagedAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>)
         }
     }
 
-    fun addOnItemClickListener(listener : BaseAdapter.AdapterClickListener) {
+    fun addOnItemClickListener(listener : BaseAdapter.OnItemClickListener<T>) {
         this.listener = listener
     }
 
-    fun getOnItemClickListener() : BaseAdapter.AdapterClickListener? {
+    fun getOnItemClickListener() : BaseAdapter.OnItemClickListener<T>? {
         return listener
     }
 
