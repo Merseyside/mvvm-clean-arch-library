@@ -2,6 +2,7 @@ package com.upstream.basemvvmimpl.presentation.adapter
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.recyclerview.widget.SortedList
 import com.upstream.basemvvmimpl.presentation.model.BaseComparableAdapterViewModel
 import com.upstream.basemvvmimpl.utils.isContentEquals
@@ -37,9 +38,9 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
     private val persistentClass: Class<T> = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<T>
 
-    override val modelList: MutableList<T> = ArrayList()
-    private  val sortedList: SortedList<T>
-    private  var filteredList: MutableList<T> = ArrayList()
+    private val modelList: MutableList<T> = ArrayList()
+    private val sortedList: SortedList<T>
+    private var filteredList: MutableList<T> = ArrayList()
 
     private var addThread: Thread? = null
     private var updateThread: Thread? = null
@@ -71,6 +72,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
             }
 
             override fun compare(o1: T, o2: T): Int {
+                Log.d(TAG, "compare")
                 return comparator.compare(o1, o2)
             }
 
@@ -78,18 +80,65 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 runOnRightThread { notifyItemRangeChanged(position, count) }
             }
 
-            override fun areContentsTheSame(oldItem: T, newItem: T): Boolean {
-                return oldItem.areContentsTheSame(newItem.getItem())
+            override fun areContentsTheSame(obj1: T, obj2: T): Boolean {
+                return obj1.areContentsTheSame(obj2.getItem())
             }
 
-            override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
-                return oldItem.areItemsTheSame(newItem.getItem())
+            override fun areItemsTheSame(obj1: T, obj2: T): Boolean {
+                return obj1.areItemsTheSame(obj2.getItem())
             }
         })
     }
 
+    override fun getModelByPosition(position: Int): T {
+        return sortedList[position]
+    }
+
+    override fun getObjByPosition(position: Int): M {
+        return getModelByPosition(position).getItem()
+    }
+
     private fun getFullList(): SortedList<T> {
         return sortedList
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override fun getPositionOfObj(obj: M): Int {
+
+        for (i in 0 until sortedList.size()) {
+            if (sortedList.get(i).areItemsTheSame(obj)) return i
+        }
+
+        throw IllegalArgumentException("No data found")
+    }
+
+    override fun find(obj: M): T? {
+
+        for (i in 0 until sortedList.size()) {
+            sortedList.get(i).let {
+                if (it.areItemsTheSame(obj)) {
+                return it
+                }
+            }
+        }
+
+        return null
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override fun notifyItemChanged(obj: M) {
+        find(obj)?.let {
+            it.notifyUpdate()
+            recalculateItemPosition(obj)
+        }
+    }
+
+    fun recalculateItemPosition(obj: M) {
+        recalculatePositionOfItemAt(getPositionOfObj(obj))
+    }
+
+    fun recalculatePositionOfItemAt(position: Int) {
+        sortedList.recalculatePositionOfItemAt(position)
     }
 
     override fun add(obj: M) {
@@ -370,14 +419,9 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         return modelList.isEmpty()
     }
 
-    override fun getModelByPosition(position: Int): T {
-        return sortedList[position]
-    }
-
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
-
         if (payloads.isNotEmpty()) {
-            getFullList().get(position).setItem(payloads[0] as M)
+            sortedList.get(position).setItem(payloads[0] as M)
         } else {
             super.onBindViewHolder(holder, position, payloads)
         }

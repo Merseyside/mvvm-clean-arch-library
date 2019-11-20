@@ -1,5 +1,6 @@
 package com.upstream.basemvvmimpl.presentation.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -14,7 +15,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
 
     private var listener: OnItemClickListener<M>? = null
 
-    protected open val modelList: MutableList<T> = ArrayList()
+    private val modelList: MutableList<T> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val layoutInflater : LayoutInflater = LayoutInflater.from(parent.context)
@@ -37,7 +38,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         return modelList[position]
     }
 
-    fun getObjByPosition(position: Int): M {
+    open fun getObjByPosition(position: Int): M {
         return getModelByPosition(position).getItem()
     }
 
@@ -125,8 +126,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
      */
     @Throws(IllegalArgumentException::class)
     open fun notifyItemChanged(obj: M) {
-        val index = getPositionOfObj(obj)
-        notifyItemChanged(index, obj)
+        find(obj)?.notifyUpdate()
     }
 
     open fun setFilter(query: String) {
