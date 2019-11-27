@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.snackbar.Snackbar
@@ -245,6 +246,27 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         dialog.show()
     }
 
+    override fun showAlertDialog(
+        @StringRes titleRes: Int?,
+        @StringRes messageRes: Int?,
+        @StringRes positiveButtonTextRes: Int?,
+        @StringRes negativeButtonTextRes: Int?,
+        onPositiveClick: () -> Unit,
+        onNegativeClick: () -> Unit,
+        isCancelable: Boolean
+    ) {
+
+        showAlertDialog(
+            getActualString(titleRes),
+            getActualString(messageRes),
+            getActualString(positiveButtonTextRes),
+            getActualString(negativeButtonTextRes),
+            onPositiveClick,
+            onNegativeClick,
+            isCancelable
+        )
+    }
+
     abstract fun getToolbar(): Toolbar?
 
     override fun setFragmentToolbar(toolbar: Toolbar?) {
@@ -257,6 +279,14 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
                 setSupportActionBar(it)
                 supportActionBar?.show()
             }
+        }
+    }
+
+    fun getActualString(@StringRes id: Int?): String? {
+        return if (id == null) {
+            null
+        } else {
+            (applicationContext as BaseApplication).getActualString(id)
         }
     }
 

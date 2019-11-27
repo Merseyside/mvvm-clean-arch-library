@@ -1,6 +1,7 @@
 package com.upstream.basemvvmimpl.presentation.view
 
 import android.view.View
+import androidx.annotation.StringRes
 
 interface IView {
 
@@ -21,4 +22,13 @@ interface IView {
         onNegativeClick: () -> Unit = {},
         isCancelable: Boolean = true
     )
+
+    fun showAlertDialog(
+        @StringRes titleRes: Int? = null,
+        @StringRes messageRes: Int? = null,
+        @StringRes positiveButtonTextRes: Int? = null,
+        @StringRes negativeButtonTextRes: Int? = null,
+        onPositiveClick: () -> Unit = {},
+        onNegativeClick: () -> Unit = {},
+        isCancelable: Boolean = true)
 }

@@ -13,7 +13,7 @@ class MaterialAlertDialog private constructor(val dialog: AlertDialog) {
 
     class Builder(private val context: Context) {
 
-        private var title: String = "Choose an option"
+        private var title: String? = null
         private var message: String? = null
         private var positiveButtonText: String = "Yes"
         private var negativeButtonText: String = "No"

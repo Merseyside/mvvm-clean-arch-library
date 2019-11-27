@@ -38,7 +38,6 @@ public class PreferenceManager {
                 if (TextUtils.isEmpty(filename))
                     throw new IllegalArgumentException("Filename cannot be empty!");
                 else {
-                    filename = context.getPackageName() + "." + filename;
                     return new PreferenceManager(context, filename);
                 }
             }

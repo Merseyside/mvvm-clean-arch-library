@@ -38,7 +38,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
     private val persistentClass: Class<T> = (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<T>
 
-    private val modelList: MutableList<T> = ArrayList()
+    override val modelList: MutableList<T> = ArrayList()
     private val sortedList: SortedList<T>
     private var filteredList: MutableList<T> = ArrayList()
 
@@ -72,7 +72,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
             }
 
             override fun compare(o1: T, o2: T): Int {
-                Log.d(TAG, "compare")
                 return comparator.compare(o1, o2)
             }
 
@@ -89,6 +88,8 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
             }
         })
     }
+
+    fun getVisibleItemCount() = sortedList.size()
 
     override fun getModelByPosition(position: Int): T {
         return sortedList[position]
@@ -181,7 +182,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         }.apply { start() }
     }
 
-    fun update(updateRequest: UpdateRequest<M>) {
+    open fun update(updateRequest: UpdateRequest<M>) {
         if (!isFiltered) {
 
             if (updateRequest.isDeleteOld) {
@@ -415,10 +416,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         }
     }
 
-    override fun isEmpty(): Boolean {
-        return modelList.isEmpty()
-    }
-
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isNotEmpty()) {
             sortedList.get(position).setItem(payloads[0] as M)
@@ -443,14 +440,6 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         } catch (e: Exception) {
             throw IndexOutOfBoundsException("List is empty")
         }
-    }
-
-    override fun getAll(): List<M> {
-        return modelList.map { it.obj }
-    }
-
-    override fun getAllModels(): List<T> {
-        return modelList
     }
 
     companion object {

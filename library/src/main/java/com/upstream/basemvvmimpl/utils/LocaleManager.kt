@@ -14,7 +14,7 @@ class LocaleManager(context: Context) {
 
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    val language: String = prefs.getString(LANGUAGE_KEY, getCurrentLocale(context).language)!!
+    var language: String = prefs.getString(LANGUAGE_KEY, getCurrentLocale(context).language)!!
 
     fun setLocale(c: Context): Context {
         return updateResources(c, language)
@@ -27,6 +27,7 @@ class LocaleManager(context: Context) {
 
     @SuppressLint("ApplySharedPref")
     private fun persistLanguage(language: String) {
+        this.language = language
         prefs.edit().putString(LANGUAGE_KEY, language).commit()
     }
 

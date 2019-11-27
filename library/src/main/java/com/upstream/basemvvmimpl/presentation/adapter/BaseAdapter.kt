@@ -1,6 +1,5 @@
 package com.upstream.basemvvmimpl.presentation.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -15,7 +14,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
 
     private var listener: OnItemClickListener<M>? = null
 
-    private val modelList: MutableList<T> = ArrayList()
+    protected open val modelList: MutableList<T> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val layoutInflater : LayoutInflater = LayoutInflater.from(parent.context)
@@ -50,7 +49,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         this.listener = listener
     }
 
-    fun removeOnItemClickListener(listener: OnItemClickListener<M>) {
+    open fun removeOnItemClickListener(listener: OnItemClickListener<M>) {
         modelList.forEach { model -> model.removeOnItemClickListener(listener) }
     }
 
@@ -58,9 +57,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         fun onItemClicked(obj: M)
     }
 
-    override fun getItemCount(): Int {
-        return modelList.size
-    }
+    override fun getItemCount() = modelList.size
 
     protected open fun add(model: T) {
         modelList.add(model)
@@ -145,16 +142,14 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         return modelList.map { it.obj }
     }
 
-    protected open fun getAllModels(): List<T> {
-        return modelList
-    }
+    protected open fun getAllModels() = modelList.toList()
 
     /**
      * @return true if modelList has items else - false
      */
-    open fun isEmpty(): Boolean {
-        return modelList.isEmpty()
-    }
+    open fun isEmpty(): Boolean = modelList.isEmpty()
+
+    open fun isNotEmpty(): Boolean = !isEmpty()
 
     @Throws(IndexOutOfBoundsException::class)
     open fun first(): M {

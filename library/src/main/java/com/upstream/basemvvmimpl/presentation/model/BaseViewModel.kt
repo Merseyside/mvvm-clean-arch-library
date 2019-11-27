@@ -3,9 +3,11 @@ package com.upstream.basemvvmimpl.presentation.model
 import android.content.Context
 import android.view.View
 import androidx.annotation.CallSuper
+import androidx.annotation.StringRes
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
+import com.upstream.basemvvmimpl.BaseApplication
 
 abstract class BaseViewModel protected constructor() : ViewModel() {
 
@@ -114,6 +116,36 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
         alertDialogLiveData.value = AlertDialogModel(
             title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable
         )
+    }
+
+    fun showAlertDialog(
+        context: Context,
+        @StringRes titleRes: Int? = null,
+        @StringRes messageRes: Int? = null,
+        @StringRes positiveButtonTextRes: Int? = null,
+        @StringRes negativeButtonTextRes: Int? = null,
+        onPositiveClick: () -> Unit = {},
+        onNegativeClick: () -> Unit = {},
+        isCancelable: Boolean = true
+    ) {
+
+        showAlertDialog(
+            getActualString(context, titleRes),
+            getActualString(context, messageRes),
+            getActualString(context, positiveButtonTextRes),
+            getActualString(context, negativeButtonTextRes),
+            onPositiveClick,
+            onNegativeClick,
+            isCancelable
+        )
+    }
+
+    fun getActualString(context: Context, @StringRes id: Int?, vararg args: String): String? {
+        return if (id != null) {
+            (context as BaseApplication).getActualString(id, *args)
+        } else {
+            null
+        }
     }
 
     protected abstract fun dispose()

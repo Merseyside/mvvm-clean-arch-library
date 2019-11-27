@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 131
-        versionName "1.31"
+        versionCode 132
+        versionName "1.32"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -59,7 +59,7 @@ artifacts {
 
 ext {
     appCompat = '1.1.0'
-    material = '1.2.0-alpha01'
+    material = '1.2.0-alpha02'
 
     dagger = '2.18'
     gson = '2.8.5'

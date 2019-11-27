@@ -8,9 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import com.upstream.basemvvmimpl.BaseApplication
 import com.upstream.basemvvmimpl.presentation.activity.BaseActivity
 import com.upstream.basemvvmimpl.presentation.view.IView
 
@@ -91,7 +93,7 @@ abstract class BaseFragment : Fragment(), IView {
 
     protected abstract fun getTitle(context: Context): String?
 
-    fun setTitle(title: String? = getTitle(baseActivityView)) {
+    fun setTitle(title: String? = getTitle((baseActivityView.applicationContext as BaseApplication).getContext())) {
         if (!TextUtils.isEmpty(title) && getActionBar() != null) {
 
             getActionBar()!!.title = title
@@ -111,7 +113,40 @@ abstract class BaseFragment : Fragment(), IView {
         onNegativeClick: () -> Unit,
         isCancelable: Boolean) {
         
-        baseActivityView.showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable)        
+        baseActivityView.showAlertDialog(
+            title,
+            message,
+            positiveButtonText,
+            negativeButtonText,
+            onPositiveClick,
+            onNegativeClick,
+            isCancelable
+        )
+    }
+
+    override fun showAlertDialog(
+        @StringRes titleRes: Int?,
+        @StringRes messageRes: Int?,
+        @StringRes positiveButtonTextRes: Int?,
+        @StringRes negativeButtonTextRes: Int?,
+        onPositiveClick: () -> Unit,
+        onNegativeClick: () -> Unit,
+        isCancelable: Boolean
+    ) {
+
+        baseActivityView.showAlertDialog(
+            titleRes,
+            messageRes,
+            positiveButtonTextRes,
+            negativeButtonTextRes,
+            onPositiveClick,
+            onNegativeClick,
+            isCancelable
+        )
+    }
+
+    fun getActualString(@StringRes id: Int?): String? {
+        return baseActivityView.getActualString(id)
     }
 
     abstract fun getToolbar(): Toolbar?
@@ -119,6 +154,6 @@ abstract class BaseFragment : Fragment(), IView {
     @CallSuper
     override fun onResume() {
         super.onResume()
-        updateLanguage()
+        updateLanguage((baseActivityView.applicationContext as BaseApplication).getContext())
     }
 }
