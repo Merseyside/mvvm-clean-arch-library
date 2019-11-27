@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 132
-        versionName "1.32"
+        versionCode 133
+        versionName "1.33"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -61,17 +61,19 @@ ext {
     appCompat = '1.1.0'
     material = '1.2.0-alpha02'
 
-    dagger = '2.18'
+    dagger = '2.25.2'
     gson = '2.8.5'
 
     room = '2.0.0'
     pagingLibrary = '1.0.1'
 
-    coroutines = '1.1.1'
+    coroutines = '1.3.2'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation "androidx.appcompat:appcompat:$appCompat"
     implementation "com.google.android.material:material:$material"
@@ -90,11 +92,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"
     implementation "android.arch.paging:runtime:$pagingLibrary"
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 repositories {
