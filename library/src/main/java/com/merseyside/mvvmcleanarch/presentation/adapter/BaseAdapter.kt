@@ -37,7 +37,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         return modelList[position]
     }
 
-    open fun getObjByPosition(position: Int): M {
+    open fun getItemByPosition(position: Int): M {
         return getModelByPosition(position).getItem()
     }
 

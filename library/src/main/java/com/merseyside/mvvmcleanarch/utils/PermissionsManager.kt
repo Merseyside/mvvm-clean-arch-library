@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 object PermissionsManager {
     fun verifyStoragePermissions(
         activity: Activity?,
-        PERMISSIONS: Array<String?>,
+        PERMISSIONS: Array<String>,
         code: Int
     ) {
         if (!isPermissionsGranted(activity, PERMISSIONS)) {
@@ -27,7 +27,7 @@ object PermissionsManager {
 
     fun verifyStoragePermissions(
         fragment: Fragment,
-        PERMISSIONS: Array<String?>,
+        PERMISSIONS: Array<String>,
         code: Int
     ) {
         if (!isPermissionsGranted(fragment.context, PERMISSIONS)) {
@@ -40,10 +40,10 @@ object PermissionsManager {
 
     fun isPermissionsGranted(
         context: Context?,
-        PERMISSIONS_STORAGE: Array<String?>
+        PERMISSIONS_STORAGE: Array<String>
     ): Boolean {
         for (permission in PERMISSIONS_STORAGE) {
-            val granted = ActivityCompat.checkSelfPermission(context!!, permission!!)
+            val granted = ActivityCompat.checkSelfPermission(context!!, permission)
             if (granted != PackageManager.PERMISSION_GRANTED) return false
         }
         return true

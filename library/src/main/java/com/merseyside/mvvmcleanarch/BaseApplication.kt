@@ -6,25 +6,24 @@ import android.content.res.Configuration
 import android.util.Log
 import androidx.annotation.StringRes
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
+import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
+import java.util.*
 
 abstract class BaseApplication : Application() {
 
     private lateinit var localeManager: LocaleManager
-    private lateinit var context: Context
+    lateinit var context: Context
+    private set
 
     override fun attachBaseContext(base: Context) {
         localeManager = LocaleManager(base)
+        context = getLocalizedContext(localeManager)
 
-        context = if (localeManager.language.isEmpty()) {
-            localeManager.setNewLocale(base, getBaseLanguage())
-        } else {
-            localeManager.setLocale(base)
-        }
         super.attachBaseContext(context)
     }
 
     fun setLanguage(language: String): Context {
-        context = localeManager.setNewLocale(this, language)
+        context = localeManager.setNewLocale(language)
         return context
     }
 
@@ -32,15 +31,13 @@ abstract class BaseApplication : Application() {
         return localeManager.language
     }
 
-    fun getContext(): Context {
-        return context
-    }
-
     fun getActualString(@StringRes id: Int, vararg args: String): String {
         return context.getString(id, *args)
     }
 
-    abstract fun getBaseLanguage(): String
+    fun getLocale(): Locale {
+        return localeManager.getCurrentLocale()
+    }
 
     companion object {
         private const val TAG = "BaseApplication"

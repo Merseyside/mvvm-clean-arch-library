@@ -3,7 +3,9 @@ package com.merseyside.mvvmcleanarch.presentation.activity
 import android.app.Activity
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -21,6 +23,7 @@ import com.merseyside.mvvmcleanarch.presentation.view.IActivityView
 import com.merseyside.mvvmcleanarch.presentation.view.OnBackPressedListener
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.ext.getActualString
+import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
 import java.lang.IllegalStateException
 
 abstract class BaseActivity : AppCompatActivity(), IActivityView {
@@ -28,7 +31,11 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     private var application: BaseApplication? = null
 
     override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(LocaleManager(newBase!!).setLocale(newBase))
+        if (newBase != null) {
+            val localeManager = LocaleManager(newBase)
+
+            super.attachBaseContext(getLocalizedContext(localeManager))
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +54,7 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         }
     }
 
-    abstract fun updateLanguage(context: Context)
+    open fun updateLanguage(context: Context) {}
 
     override fun setLanguage(lang: String?) {
         if (application != null) {
@@ -204,6 +211,8 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         }
     }
 
+    override fun handleError(throwable: Throwable) {}
+
     @IdRes
     open fun getFragmentContainer(): Int? {
         return null
@@ -280,7 +289,7 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     }
 
     override fun getActualString(@StringRes id: Int?, vararg args: String): String? {
-        return (this as Context).getActualString(id, *args)
+        return applicationContext.getActualString(id, *args)
     }
 
     companion object {

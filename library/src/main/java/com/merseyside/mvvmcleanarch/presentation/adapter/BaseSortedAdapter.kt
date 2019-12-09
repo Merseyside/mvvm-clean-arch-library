@@ -94,7 +94,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
         return sortedList[position]
     }
 
-    override fun getObjByPosition(position: Int): M {
+    override fun getItemByPosition(position: Int): M {
         return getModelByPosition(position).getItem()
     }
 

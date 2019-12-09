@@ -93,7 +93,7 @@ abstract class BaseFragment : Fragment(), IView {
 
     protected abstract fun getTitle(context: Context): String?
 
-    fun setTitle(title: String? = getTitle((baseActivityView.applicationContext as BaseApplication).getContext())) {
+    fun setTitle(title: String? = getTitle((baseActivityView.applicationContext as BaseApplication).context)) {
         if (!TextUtils.isEmpty(title) && getActionBar() != null) {
 
             getActionBar()!!.title = title
@@ -154,6 +154,6 @@ abstract class BaseFragment : Fragment(), IView {
     @CallSuper
     override fun onResume() {
         super.onResume()
-        updateLanguage((baseActivityView.applicationContext as BaseApplication).getContext())
+        updateLanguage((baseActivityView.applicationContext as BaseApplication).context)
     }
 }

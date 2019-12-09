@@ -10,19 +10,19 @@ import android.os.Build.VERSION_CODES.JELLY_BEAN_MR1
 import android.preference.PreferenceManager
 import java.util.Locale
 
-class LocaleManager(context: Context) {
+class LocaleManager(var context: Context) {
 
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    var language: String = prefs.getString(LANGUAGE_KEY, getCurrentLocale(context).language)!!
+    var language: String = prefs.getString(LANGUAGE_KEY, getCurrentLocale().language)!!
 
-    fun setLocale(c: Context): Context {
-        return updateResources(c, language)
+    fun setLocale(): Context {
+        return updateResources(language)
     }
 
-    fun setNewLocale(c: Context, language: String): Context {
+    fun setNewLocale(language: String = LANGUAGE_ENGLISH): Context {
         persistLanguage(language)
-        return updateResources(c, language)
+        return updateResources(language)
     }
 
     @SuppressLint("ApplySharedPref")
@@ -31,21 +31,32 @@ class LocaleManager(context: Context) {
         prefs.edit().putString(LANGUAGE_KEY, language).commit()
     }
 
-    private fun updateResources(context: Context, language: String?): Context {
-        var context = context
-        val locale = Locale(language!!)
+    private fun updateResources(language: String): Context {
+
+        val locale = Locale(language)
         Locale.setDefault(locale)
 
         val res = context.resources
         val config = Configuration(res.configuration)
-        if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {
+
+        this.context = if (Build.VERSION.SDK_INT >= JELLY_BEAN_MR1) {
             config.setLocale(locale)
-            context = context.createConfigurationContext(config)
+            context.createConfigurationContext(config)
         } else {
             config.locale = locale
             res.updateConfiguration(config, res.displayMetrics)
+            context
         }
-        return context
+
+        return this.context
+    }
+
+    fun getCurrentLocale(): Locale {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.resources.configuration.locales[0]
+        } else {
+            context.resources.configuration.locale
+        }
     }
 
     companion object {
@@ -56,16 +67,8 @@ class LocaleManager(context: Context) {
         fun getLocale(res: Resources): Locale {
             val config = res.configuration
             return if (Build.VERSION.SDK_INT >= 24) {
-                config.locales.get(0)
+                config.locales[0]
             } else config.locale
-        }
-
-        fun getCurrentLocale(context: Context): Locale {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                context.resources.configuration.locales.get(0)
-            } else {
-                context.resources.configuration.locale
-            }
         }
     }
 }
