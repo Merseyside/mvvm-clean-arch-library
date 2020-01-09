@@ -142,6 +142,10 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         return modelList.map { it.obj }
     }
 
+    fun notifyUpdateAll() {
+        modelList.forEach { it.notifyUpdate() }
+    }
+
     protected open fun getAllModels() = modelList.toList()
 
     /**

@@ -1,12 +1,16 @@
 package com.merseyside.mvvmcleanarch.presentation.model
 
 import android.content.Context
+import android.os.Build
 import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
+import androidx.core.os.BuildCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
+import com.merseyside.mvvmcleanarch.BuildConfig
+import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SingleLiveEvent
 import com.merseyside.mvvmcleanarch.utils.ext.getActualString
 
@@ -34,7 +38,8 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
         val negativeButtonText: String? = null,
         val onPositiveClick: () -> Unit = {},
         val onNegativeClick: () -> Unit = {},
-        val isCancelable: Boolean = true
+        val isOneAction: Boolean? = null,
+        val isCancelable: Boolean? = null
     )
 
     open fun handleError(throwable: Throwable) {
@@ -42,6 +47,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     }
 
     protected fun showMsg(msg: String) {
+        Logger.log(this, msg)
         val textMessage = TextMessage(
             isError = false,
             msg = msg
@@ -51,6 +57,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     }
 
     protected fun showErrorMsg(msg: String) {
+        Logger.logErr(this, msg)
         val textMessage = TextMessage(
             isError = true,
             msg = msg
@@ -60,6 +67,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     }
 
     protected fun showMsg(msg: String, actionMsg: String, listener: View.OnClickListener?) {
+        Logger.log(this, msg)
         val textMessage = TextMessage(
             isError = false,
             msg = msg,
@@ -70,6 +78,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     }
 
     protected fun showErrorMsg(msg: String, actionMsg: String, listener: View.OnClickListener) {
+        Logger.logErr(this, msg)
         val textMessage = TextMessage(
             isError = true,
             msg = msg,
@@ -84,6 +93,8 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
 
     @CallSuper
     fun showProgress(text: String? = null) {
+        Logger.log(this, text ?: "Empty")
+
         isInProgress.set(true)
         progressText.set(text)
 
@@ -107,10 +118,11 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
         negativeButtonText: String? = null,
         onPositiveClick: () -> Unit = {},
         onNegativeClick: () -> Unit = {},
-        isCancelable: Boolean = true
+        isOneAction: Boolean? = null,
+        isCancelable: Boolean? = null
     ) {
         alertDialogLiveEvent.value = AlertDialogModel(
-            title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable
+            title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isOneAction, isCancelable
         )
     }
 
@@ -122,6 +134,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
         @StringRes negativeButtonTextRes: Int? = null,
         onPositiveClick: () -> Unit = {},
         onNegativeClick: () -> Unit = {},
+        isOneAction: Boolean? = null,
         isCancelable: Boolean = true
     ) {
 
@@ -132,6 +145,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
             getString(context, negativeButtonTextRes),
             onPositiveClick,
             onNegativeClick,
+            isOneAction,
             isCancelable
         )
     }
@@ -150,7 +164,7 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
         dispose()
     }
 
-    abstract fun updateLanguage(context: Context)
+    open fun updateLanguage(context: Context) {}
 
     open fun onBackPressed() : Boolean {
         return true

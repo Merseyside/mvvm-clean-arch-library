@@ -35,7 +35,7 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     private val loadingObserver = Observer<Boolean> { this.loadingObserver(it!!) }
     private val alertDialogModel = Observer<BaseViewModel.AlertDialogModel> {
         it?.apply {
-            showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isCancelable)
+            showAlertDialog(title, message, positiveButtonText, negativeButtonText, onPositiveClick, onNegativeClick, isOneAction, isCancelable)
 
             viewModel.alertDialogLiveEvent.value = null
         }

@@ -21,6 +21,8 @@ class MaterialAlertDialog private constructor(val dialog: AlertDialog) {
         private var onPositiveClick: () -> Unit = {}
         private var onNegativeClick: () -> Unit = {}
 
+        private var isOneAction: Boolean = false
+
         private var isCancelable: Boolean = true
 
         fun setTitle(title: String?): Builder {
@@ -62,6 +64,14 @@ class MaterialAlertDialog private constructor(val dialog: AlertDialog) {
             return this
         }
 
+        fun isOneAction(isOneAction: Boolean?): Builder {
+            if (isOneAction != null) {
+                this.isOneAction = isOneAction
+            }
+
+            return this
+        }
+
         fun setOnPositiveClick(func: () -> Unit = {}): Builder {
             this.onPositiveClick = func
 
@@ -90,12 +100,14 @@ class MaterialAlertDialog private constructor(val dialog: AlertDialog) {
                 dialog.cancel()
             }
 
-            builder.setNegativeButton(
-                negativeButtonText
-            ) { dialog, _ ->
-                onNegativeClick()
+            if (!isOneAction) {
+                builder.setNegativeButton(
+                    negativeButtonText
+                ) { dialog, _ ->
+                    onNegativeClick()
 
-                dialog.cancel()
+                    dialog.cancel()
+                }
             }
 
             return MaterialAlertDialog(builder.create())

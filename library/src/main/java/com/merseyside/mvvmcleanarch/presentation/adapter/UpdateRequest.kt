@@ -1,8 +1,6 @@
 package com.merseyside.mvvmcleanarch.presentation.adapter
 
-import java.lang.IllegalArgumentException
-
-class UpdateRequest<T> {
+class UpdateRequest<T>(val list: List<T>) {
 
     var isAddNew = true
     private set
@@ -10,12 +8,9 @@ class UpdateRequest<T> {
     var isDeleteOld = false
     private set
 
-    var list: List<T>? = null
-    private set
+    class Builder<T>(list: List<T>) {
 
-    class Builder<T> {
-
-        private val request: UpdateRequest<T> = UpdateRequest()
+        private val request: UpdateRequest<T> = UpdateRequest(list)
 
         fun isAddNew(bool: Boolean): Builder<T> {
             request.isAddNew = bool
@@ -29,19 +24,8 @@ class UpdateRequest<T> {
             return this
         }
 
-        fun setList(list: List<T>): Builder<T> {
-            request.list = list
-
-            return this
-        }
-
         fun build(): UpdateRequest<T> {
-            if (request.list != null) {
-
-                return request
-            }
-
-            throw IllegalArgumentException("List can not be null")
+            return request
         }
     }
 }

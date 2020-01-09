@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlinx-serialization'
 apply plugin: 'com.github.dcendents.android-maven'
 
 group = 'com.github.Merseyside'
@@ -11,8 +12,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode 134
-        versionName "1.34"
+        versionCode 135
+        versionName "1.35"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -59,7 +60,7 @@ artifacts {
 
 ext {
     appCompat = '1.1.0'
-    material = '1.2.0-alpha02'
+    material = '1.2.0-alpha03'
 
     dagger = '2.25.2'
     gson = '2.8.5'

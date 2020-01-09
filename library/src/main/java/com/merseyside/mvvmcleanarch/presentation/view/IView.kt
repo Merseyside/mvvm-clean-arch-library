@@ -2,14 +2,19 @@ package com.merseyside.mvvmcleanarch.presentation.view
 
 import android.view.View
 import androidx.annotation.StringRes
+import com.merseyside.mvvmcleanarch.utils.SnackbarManager
 
 interface IView {
 
+    var snackbarManager: SnackbarManager
+
     fun showMsg(msg: String, actionMsg: String? = null, clickListener: View.OnClickListener? = null)
 
-    fun handleError(throwable: Throwable)
-
     fun showErrorMsg(msg: String, actionMsg: String? = null, clickListener: View.OnClickListener? = null)
+
+    fun dismissMsg()
+
+    fun handleError(throwable: Throwable)
 
     fun setLanguage(lang: String? = null)
     
@@ -20,7 +25,8 @@ interface IView {
         negativeButtonText: String? = null,
         onPositiveClick: () -> Unit = {},
         onNegativeClick: () -> Unit = {},
-        isCancelable: Boolean = true
+        isOneAction: Boolean? = null,
+        isCancelable: Boolean? = null
     )
 
     fun showAlertDialog(
@@ -30,7 +36,8 @@ interface IView {
         @StringRes negativeButtonTextRes: Int? = null,
         onPositiveClick: () -> Unit = {},
         onNegativeClick: () -> Unit = {},
-        isCancelable: Boolean = true
+        isOneAction: Boolean? = null,
+        isCancelable: Boolean? = null
     )
 
     fun getActualString(@StringRes id: Int?, vararg args: String): String?

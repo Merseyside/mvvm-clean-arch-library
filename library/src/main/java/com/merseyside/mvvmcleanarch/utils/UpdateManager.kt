@@ -8,7 +8,8 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
-import java.lang.IllegalStateException
+import com.google.android.play.core.install.model.ActivityResult
+import kotlin.IllegalStateException
 
 class UpdateManager(private val activity: Activity) {
 
@@ -38,7 +39,9 @@ class UpdateManager(private val activity: Activity) {
             val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
             appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-                Log.d(TAG, "${appUpdateInfo.updateAvailability()}")
+                Logger.log(TAG, "${appUpdateInfo.updateAvailability()}")
+
+                this.appUpdateInfo = appUpdateInfo
 
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                     if (requestCode != null) {
@@ -51,6 +54,7 @@ class UpdateManager(private val activity: Activity) {
                         if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                             && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
                         ) {
+                            Log.d(TAG, "Updating is available")
                             this.onAppUpdateListener?.updateAvailable()
                         }
                     }
@@ -61,34 +65,39 @@ class UpdateManager(private val activity: Activity) {
         }
     }
 
+    @Throws(IllegalArgumentException::class)
     fun startImmediateUpdate(requestCode: Int) {
-        this.requestCode = requestCode
+        if (isRequestCodeValid(requestCode))  {
+            this.requestCode = requestCode
 
-        if (appUpdateInfo != null) {
-            appUpdateManager.startUpdateFlowForResult(
-                appUpdateInfo,
-                AppUpdateType.IMMEDIATE,
-                activity,
-                requestCode
-            )
-        } else {
-            throw IllegalStateException("App is not available for update")
-        }
+            if (appUpdateInfo != null) {
+                appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    AppUpdateType.IMMEDIATE,
+                    activity,
+                    requestCode
+                )
+            } else {
+                throw IllegalStateException("App is not available for updating")
+            }
+        } else throw IllegalArgumentException("requestCode must be lower than 2^16")
     }
 
+    @Throws(IllegalArgumentException::class)
     fun startFlexibleUpdate(requestCode: Int, onFlexibleUpdateStateListener: OnFlexibleUpdateStateListener) {
-        this.requestCode = requestCode
+        if (isRequestCodeValid(requestCode)) {
+            this.requestCode = requestCode
 
-        if (appUpdateInfo != null) {
-            appUpdateManager.startUpdateFlowForResult(
-                appUpdateInfo,
-                AppUpdateType.FLEXIBLE,
-                activity,
-                requestCode
-            )
+            if (appUpdateInfo != null) {
+                appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    AppUpdateType.FLEXIBLE,
+                    activity,
+                    requestCode
+                )
 
-            appUpdateManager.registerListener { state ->
-                    when(state.installStatus()) {
+                appUpdateManager.registerListener { state ->
+                    when (state.installStatus()) {
                         InstallStatus.DOWNLOADED -> {
                             onFlexibleUpdateStateListener.onDownloaded()
                         }
@@ -105,19 +114,28 @@ class UpdateManager(private val activity: Activity) {
                             onFlexibleUpdateStateListener.onInstalled()
                         }
 
-                        else -> {}
+                        else -> {
+                        }
                     }
                 }
-        } else {
-            throw IllegalStateException("App is not available for update")
-        }
+            } else {
+                throw IllegalStateException("App is not available for updating")
+            }
+        } else throw IllegalArgumentException("requestCode must be lower than 2^16")
     }
 
     fun installDownloadedUpdate() {
         appUpdateManager.completeUpdate()
+        RESULT_IN_APP_UPDATE_FAILED
+    }
+
+    private fun isRequestCodeValid(requestCode: Int): Boolean {
+        return requestCode in 0 until Short.MAX_VALUE * 2
     }
 
     companion object {
         private const val TAG = "UpdateManager"
+
+        const val RESULT_IN_APP_UPDATE_FAILED = ActivityResult.RESULT_IN_APP_UPDATE_FAILED
     }
 }

@@ -6,7 +6,6 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.ActionBar
@@ -15,21 +14,31 @@ import androidx.fragment.app.Fragment
 import com.merseyside.mvvmcleanarch.BaseApplication
 import com.merseyside.mvvmcleanarch.presentation.activity.BaseActivity
 import com.merseyside.mvvmcleanarch.presentation.view.IView
+import com.merseyside.mvvmcleanarch.utils.Logger
+import com.merseyside.mvvmcleanarch.utils.SnackbarManager
+import kotlinx.serialization.Serializable
 
 abstract class BaseFragment : Fragment(), IView {
 
     protected lateinit var baseActivityView: BaseActivity
         private set
 
+    private var requestCode: Int? = null
+    private var fragmentResult: FragmentResult? = null
+
+    override lateinit var snackbarManager: SnackbarManager
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is BaseActivity) {
             baseActivityView = context
+
+            snackbarManager = baseActivityView.snackbarManager
         }
     }
 
     override fun getContext(): Context {
-        return baseActivityView
+        return baseActivityView.context
     }
 
     fun getLanguage(): String {
@@ -37,6 +46,22 @@ abstract class BaseFragment : Fragment(), IView {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(RESULT_CODE_KEY)) {
+                val resultCode = savedInstanceState.getInt(RESULT_CODE_KEY)
+                this.requestCode = savedInstanceState.getInt(REQUEST_CODE_KEY)
+
+                var bundle: Bundle? = null
+                if (savedInstanceState.containsKey(RESULT_BUNDLE_KEY)) {
+                    bundle = savedInstanceState.getBundle(RESULT_BUNDLE_KEY)
+                }
+
+                this.fragmentResult = FragmentResult(resultCode, requestCode!!, bundle)
+            } else if (savedInstanceState.containsKey(REQUEST_CODE_KEY)) {
+                this.requestCode = savedInstanceState.getInt(REQUEST_CODE_KEY)
+            }
+        }
+
         return inflater.inflate(getLayoutId(), container, false)
     }
 
@@ -49,14 +74,35 @@ abstract class BaseFragment : Fragment(), IView {
         getToolbar()?.let {
             baseActivityView.setFragmentToolbar(it)
         }
-
-        updateLanguage(context)
     }
 
     override fun onStart() {
         super.onStart()
 
         setTitle()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        if (fragmentResult != null) {
+            outState.putInt(RESULT_CODE_KEY, fragmentResult!!.resultCode)
+            outState.putInt(REQUEST_CODE_KEY, fragmentResult!!.requestCode)
+            if (fragmentResult!!.bundle != null) {
+                outState.putBundle(RESULT_BUNDLE_KEY, fragmentResult!!.bundle)
+            }
+        } else if (requestCode != null) {
+            outState.putInt(REQUEST_CODE_KEY, requestCode!!)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        if (snackbarManager.isShowing()) {
+            Logger.log(this, "here")
+            snackbarManager.dismiss()
+        }
     }
 
     override fun onDestroyView() {
@@ -76,14 +122,36 @@ abstract class BaseFragment : Fragment(), IView {
     }
 
     override fun showMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
-        baseActivityView.showMsg(msg, actionMsg, clickListener)
+
+       snackbarManager.apply {
+           showSnackbar(
+               message = msg,
+               actionMsg = actionMsg,
+               clickListener = clickListener
+           )
+       }
     }
 
     override fun showErrorMsg(msg: String, actionMsg: String?, clickListener: View.OnClickListener?) {
-        baseActivityView.showErrorMsg(msg, actionMsg, clickListener)
+
+       snackbarManager.apply {
+           showErrorSnackbar(
+               message = msg,
+               actionMsg = actionMsg,
+               clickListener = clickListener
+           )
+       }
     }
 
-    abstract fun updateLanguage(context: Context)
+    override fun dismissMsg() {
+        if (snackbarManager.isShowing()) {
+            snackbarManager.dismiss()
+        } else {
+            Logger.log(this, "Snackbar had not shown")
+        }
+    }
+
+    open fun updateLanguage(context: Context) {}
 
     override fun setLanguage(lang: String?) {
         baseActivityView.setLanguage(lang)
@@ -111,7 +179,8 @@ abstract class BaseFragment : Fragment(), IView {
         negativeButtonText: String?,
         onPositiveClick: () -> Unit,
         onNegativeClick: () -> Unit,
-        isCancelable: Boolean) {
+        isOneAction: Boolean?,
+        isCancelable: Boolean?) {
         
         baseActivityView.showAlertDialog(
             title,
@@ -120,6 +189,7 @@ abstract class BaseFragment : Fragment(), IView {
             negativeButtonText,
             onPositiveClick,
             onNegativeClick,
+            isOneAction,
             isCancelable
         )
     }
@@ -131,7 +201,8 @@ abstract class BaseFragment : Fragment(), IView {
         @StringRes negativeButtonTextRes: Int?,
         onPositiveClick: () -> Unit,
         onNegativeClick: () -> Unit,
-        isCancelable: Boolean
+        isOneAction: Boolean?,
+        isCancelable: Boolean?
     ) {
 
         baseActivityView.showAlertDialog(
@@ -141,6 +212,7 @@ abstract class BaseFragment : Fragment(), IView {
             negativeButtonTextRes,
             onPositiveClick,
             onNegativeClick,
+            isOneAction,
             isCancelable
         )
     }
@@ -149,11 +221,48 @@ abstract class BaseFragment : Fragment(), IView {
         return baseActivityView.getActualString(id, *args)
     }
 
-    abstract fun getToolbar(): Toolbar?
+    open fun getToolbar(): Toolbar? {
+        return null
+    }
 
-    @CallSuper
-    override fun onResume() {
-        super.onResume()
-        updateLanguage((baseActivityView.applicationContext as BaseApplication).context)
+    override fun onDetach() {
+        super.onDetach()
+
+        if (requestCode != null) {
+            val result = if (fragmentResult == null) {
+                FragmentResult(RESULT_CANCELLED, requestCode!!)
+            } else {
+                fragmentResult!!
+            }
+
+            baseActivityView.setFragmentResult(result)
+        }
+    }
+
+    protected fun setFragmentResult(resultCode: Int, bundle: Bundle? = null) {
+        if (requestCode != null) {
+            this.fragmentResult = FragmentResult(resultCode, requestCode!!, bundle)
+        } else throw IllegalStateException("Firstly, set request code")
+    }
+
+    protected fun setRequestCode(requestCode: Int) {
+        this.requestCode = requestCode
+    }
+
+    open fun onFragmentResult(resultCode: Int, requestCode: Int, bundle: Bundle? = null) {}
+
+    class FragmentResult(
+        val resultCode: Int,
+        val requestCode: Int,
+        val bundle: Bundle? = null
+    )
+
+    companion object {
+        const val RESULT_OK = -1
+        const val RESULT_CANCELLED = 0
+
+        private const val REQUEST_CODE_KEY = "requestCode"
+        private const val RESULT_CODE_KEY = "resultCode"
+        private const val RESULT_BUNDLE_KEY = "resultBundle"
     }
 }

@@ -19,6 +19,7 @@ import kotlin.collections.MutableList
 import kotlin.collections.set
 import kotlin.synchronized
 import com.merseyside.mvvmcleanarch.presentation.view.BaseViewHolder
+import com.merseyside.mvvmcleanarch.utils.Logger
 import kotlin.collections.ArrayList
 
 
@@ -190,7 +191,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
                 }.filter {
                     var isFound = false
 
-                    for (obj in updateRequest.list!!) {
+                    for (obj in updateRequest.list) {
                         if (it.areItemsTheSame(obj)) {
                             isFound = true
                             break
@@ -206,18 +207,20 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
             }
         }
 
-        val addList = ArrayList<M>()
-        for (obj in updateRequest.list!!) {
-            if (Looper.getMainLooper() == Looper.myLooper() || (updateThread != null && !updateThread!!.isInterrupted)) {
-                if (!isFiltered && !update(obj)) {
-                    addList.add(obj)
+        if (!isFiltered) { // need to work with adding when filters isn't empty
+            val addList = ArrayList<M>()
+            for (obj in updateRequest.list) {
+                if (Looper.getMainLooper() == Looper.myLooper() || (updateThread != null && !updateThread!!.isInterrupted)) {
+                    if (!update(obj) && updateRequest.isAddNew) {
+                        addList.add(obj)
+                    }
+                } else {
+                    break
                 }
-            } else {
-                break
             }
-        }
 
-        if (updateRequest.isAddNew) add(addList)
+            if (updateRequest.isAddNew) add(addList)
+        }
     }
 
     private fun update(obj: M): Boolean {
@@ -226,9 +229,11 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
             val model = sortedList.get(i)
             if (model.areItemsTheSame(obj)) {
-                if (!sortedList.get(i).areContentsTheSame(obj)) {
+                if (!model.areContentsTheSame(obj)) {
                     runOnRightThread {
-                        notifyItemChanged(i, obj)
+                        model.setItem(obj)
+                        //notifyItemChanged(i, obj)
+                        recalculatePositionOfItemAt(i)
                     }
                 }
                 isFound = true

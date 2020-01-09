@@ -22,7 +22,7 @@ fun Context.getColorFromAttr(
 fun Context.getActualString(@StringRes id: Int?, vararg args: String): String? {
     return if (id != null) {
         if (this.applicationContext is BaseApplication) {
-            (this as BaseApplication).getActualString(id, *args)
+            (this.applicationContext as BaseApplication).getActualString(id, *args)
         } else {
             throw IllegalArgumentException("Your app class must be extended by BaseApplication. Your class is ${this.javaClass}")
         }
