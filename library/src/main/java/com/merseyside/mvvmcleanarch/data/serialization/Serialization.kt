@@ -29,12 +29,12 @@ fun <T> String.deserialize(deserializationStrategy: DeserializationStrategy<T>):
     return json.parse(deserializationStrategy, this)
 }
 
-@UseExperimental(ImplicitReflectionSerializer::class)
-inline fun <reified T : Any> T.serializePrimitive(): String {
-    return json.stringify(this)
+inline fun <reified T : Any> Any.deserialize(): T {
+    return this.toString().deserialize()
 }
 
-@UseExperimental(ImplicitReflectionSerializer::class)
-inline fun <reified T : Any> String.deserializePrimitive(): T {
-    return json.parse(this)
+fun <T> Any.deserialize(deserializationStrategy: DeserializationStrategy<T>): T {
+    return this.toString().deserialize(deserializationStrategy)
 }
+
+
