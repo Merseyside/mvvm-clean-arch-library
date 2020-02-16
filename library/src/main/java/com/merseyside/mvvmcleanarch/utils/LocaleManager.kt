@@ -63,12 +63,5 @@ class LocaleManager(var context: Context) {
 
         private const val LANGUAGE_ENGLISH = "en"
         private const val LANGUAGE_KEY = "language_key"
-
-        fun getLocale(res: Resources): Locale {
-            val config = res.configuration
-            return if (Build.VERSION.SDK_INT >= 24) {
-                config.locales[0]
-            } else config.locale
-        }
     }
 }

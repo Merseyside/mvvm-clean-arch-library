@@ -24,7 +24,7 @@ fun Context.getActualString(@StringRes id: Int?, vararg args: String): String? {
         if (this.applicationContext is BaseApplication) {
             (this.applicationContext as BaseApplication).getActualString(id, *args)
         } else {
-            throw IllegalArgumentException("Your app class must be extended by BaseApplication. Your class is ${this.javaClass}")
+            this.getString(id, *args)
         }
     } else {
         null

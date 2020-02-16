@@ -5,7 +5,9 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.annotation.*
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.merseyside.mvvmcleanarch.BaseApplication
@@ -13,21 +15,25 @@ import com.merseyside.mvvmcleanarch.presentation.dialog.MaterialAlertDialog
 import com.merseyside.mvvmcleanarch.presentation.fragment.BaseFragment
 import com.merseyside.mvvmcleanarch.presentation.view.IActivityView
 import com.merseyside.mvvmcleanarch.presentation.view.OnBackPressedListener
+import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SnackbarManager
 import com.merseyside.mvvmcleanarch.utils.ext.getActualString
 import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
-import kotlinx.serialization.Serializable
-import java.lang.IllegalStateException
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
+import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
+
 
 abstract class BaseActivity : AppCompatActivity(), IActivityView {
+
+    override var keyboardUnregistrar: Any? = null
 
     private var application: BaseApplication? = null
     lateinit var context: Context
         private set
 
-    override lateinit var snackbarManager: SnackbarManager
+    lateinit var snackbarManager: SnackbarManager
 
     override fun attachBaseContext(newBase: Context?) {
         if (newBase != null) {
@@ -55,12 +61,22 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         snackbarManager = SnackbarManager(this)
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        if (this is OnKeyboardStateListener) {
+            keyboardUnregistrar = registerKeyboardListener(this)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
 
         if (snackbarManager.isShowing()) {
             snackbarManager.dismiss()
         }
+
+        unregisterKeyboardListener()
     }
 
     open fun updateLanguage(context: Context) {}
@@ -221,6 +237,15 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
     override fun setFragmentResult(fragmentResult: BaseFragment.FragmentResult) {
         fragmentResult.let {
             getCurrentFragment()?.onFragmentResult(it.resultCode, it.requestCode, it.bundle)
+        }
+    }
+
+    override fun registerKeyboardListener(listener: OnKeyboardStateListener): Unregistrar {
+        return KeyboardVisibilityEvent.registerEventListener(
+            this
+        ) { isVisible ->
+            if (isVisible) listener.onKeyboardShown()
+            else listener.onKeyboardHided()
         }
     }
 }

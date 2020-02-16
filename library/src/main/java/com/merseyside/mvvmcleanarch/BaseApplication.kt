@@ -10,8 +10,9 @@ import java.util.*
 abstract class BaseApplication : Application() {
 
     private lateinit var localeManager: LocaleManager
+
     lateinit var context: Context
-    private set
+        private set
 
     override fun attachBaseContext(base: Context) {
         localeManager = LocaleManager(base)

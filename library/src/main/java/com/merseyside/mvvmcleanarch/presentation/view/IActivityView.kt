@@ -1,13 +1,14 @@
 package com.merseyside.mvvmcleanarch.presentation.view
 
-import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import com.merseyside.mvvmcleanarch.presentation.fragment.BaseFragment
-import com.merseyside.mvvmcleanarch.utils.SnackbarManager
+import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
 
 interface IActivityView : IView {
 
     fun hideKeyboard()
+
+    fun registerKeyboardListener(listener: OnKeyboardStateListener): Unregistrar
 
     fun onBackPressed()
 

@@ -2,6 +2,7 @@ package com.merseyside.mvvmcleanarch.presentation.model
 
 import androidx.databinding.BaseObservable
 import com.merseyside.mvvmcleanarch.presentation.adapter.BaseAdapter
+import java.util.concurrent.ArrayBlockingQueue
 
 abstract class BaseAdapterViewModel<M>(
     obj: M
@@ -13,14 +14,18 @@ abstract class BaseAdapterViewModel<M>(
         this.obj = obj
     }
 
-    private val listeners: MutableList<BaseAdapter.OnItemClickListener<M>> by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
+    private val listeners: ArrayList<BaseAdapter.OnItemClickListener<M>> by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
 
     fun setOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
-        this.listeners.add(listener)
+        if (!this.listeners.contains(listener)) {
+            this.listeners.add(listener)
+        }
     }
 
     fun removeOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
-        listeners.remove(listener).toString()
+        if (listeners.isNotEmpty()) {
+            listeners.remove(listener).toString()
+        }
     }
 
     fun onClick() {
@@ -37,6 +42,8 @@ abstract class BaseAdapterViewModel<M>(
     fun getItem(): M {
         return obj
     }
+
+    open fun onRecycled() {}
 
     abstract fun areItemsTheSame(obj: M): Boolean
 

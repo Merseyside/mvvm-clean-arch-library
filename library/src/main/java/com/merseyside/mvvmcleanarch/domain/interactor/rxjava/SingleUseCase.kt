@@ -1,4 +1,4 @@
-package com.merseyside.mvvmcleanarch.domain.interactor
+package com.merseyside.mvvmcleanarch.domain.interactor.rxjava
 
 import com.merseyside.mvvmcleanarch.domain.executor.PostExecutionThread
 import com.merseyside.mvvmcleanarch.domain.executor.ThreadExecutor
@@ -7,15 +7,15 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
-abstract class SingleUseCase<T, Params> protected constructor(private val threadExecutor: ThreadExecutor,
-                                                              private val postExecutionThread: PostExecutionThread
+abstract class SingleUseCase<T, Params> protected constructor(
+    private val threadExecutor: ThreadExecutor,
+    private val postExecutionThread: PostExecutionThread
 ) {
-
     private val disposables: CompositeDisposable = CompositeDisposable()
 
     protected abstract fun buildUseCaseSingle(params : Params?) : Single<T>
 
-    fun execute(observer: DisposableSingleObserver<T>, params: Params?) {
+    fun execute(observer: DisposableSingleObserver<T>, params: Params? = null) {
 
         val single = this.buildUseCaseSingle(params)
                 .subscribeOn(Schedulers.from(threadExecutor))

@@ -2,7 +2,10 @@
 package com.merseyside.mvvmcleanarch.utils
 
 import android.content.Context
-import android.util.Log
+import android.content.res.Configuration
+import android.view.KeyCharacterMap
+import android.view.KeyEvent
+import android.view.ViewConfiguration
 import java.util.*
 
 internal fun getLocalizedContext(localeManager: LocaleManager): Context {
@@ -33,7 +36,72 @@ fun convertPixelsToDp(context: Context, px: Int): Float {
 
 fun convertDpToPixel(context: Context, dp: Float): Float {
     val density = context.resources.displayMetrics.density
-    return dp / density
+    return dp * density
 }
 
-private const val TAG = "CleanUtils"
+fun generateRandomString(length: Int): String {
+    if (length > 0) {
+        val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+
+        return (1..length)
+            .map { kotlin.random.Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("")
+    }
+
+    return ""
+}
+
+fun getWindowWidth(context: Context): Int {
+    return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+        getWindowWidthPortrait(context)
+    } else {
+        getWindowWidthLandscape(context)
+    }
+}
+
+fun getWindowWidthPortrait(context: Context): Int {
+    val metrics = context.resources.displayMetrics
+    return metrics.widthPixels
+}
+
+fun getWindowWidthLandscape(context: Context): Int {
+    val metrics = context.resources.displayMetrics
+    return metrics.widthPixels
+}
+
+fun getNavBarHeight(context: Context): Int {
+    val result = 0
+    val hasMenuKey =
+        ViewConfiguration.get(context).hasPermanentMenuKey()
+    val hasBackKey =
+        KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK)
+    if (!hasMenuKey && !hasBackKey) { //The device has a navigation bar
+        val resources = context.resources
+        val orientation = context.resources.configuration.orientation
+        val resourceId: Int
+        resourceId = if (isTablet(context)) {
+            resources.getIdentifier(
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) "navigation_bar_height" else "navigation_bar_height_landscape",
+                "dimen",
+                "android"
+            )
+        } else {
+            resources.getIdentifier(
+                if (orientation == Configuration.ORIENTATION_PORTRAIT) "navigation_bar_height" else "navigation_bar_width",
+                "dimen",
+                "android"
+            )
+        }
+        if (resourceId > 0) {
+            return context.resources.getDimensionPixelSize(resourceId)
+        }
+    }
+    return result
+}
+
+fun isTablet(context: Context): Boolean {
+    return ((context.resources.configuration.screenLayout
+            and Configuration.SCREENLAYOUT_SIZE_MASK)
+            >= Configuration.SCREENLAYOUT_SIZE_LARGE)
+}

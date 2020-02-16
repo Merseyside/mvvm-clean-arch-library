@@ -1,20 +1,21 @@
 package com.merseyside.mvvmcleanarch.presentation.model
 
+import android.app.Application
 import android.content.Context
-import android.os.Build
 import android.view.View
 import androidx.annotation.CallSuper
 import androidx.annotation.StringRes
-import androidx.core.os.BuildCompat
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.lifecycle.*
-import com.merseyside.mvvmcleanarch.BuildConfig
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SingleLiveEvent
 import com.merseyside.mvvmcleanarch.utils.ext.getActualString
 
 abstract class BaseViewModel protected constructor() : ViewModel() {
+
+    abstract val application: Application
 
     val isInProgress = ObservableBoolean(false)
     val progressText = ObservableField<String>()
@@ -44,6 +45,14 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
 
     open fun handleError(throwable: Throwable) {
         errorLiveEvent.value = throwable
+    }
+
+    protected fun showMsg(@StringRes id: Int, vararg args: String) {
+        showMsg(getString(id, *args))
+    }
+
+    protected fun showErrorMsg(@StringRes id: Int, vararg args: String) {
+        showErrorMsg(getString(id, *args))
     }
 
     protected fun showMsg(msg: String) {
@@ -127,7 +136,6 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     }
 
     fun showAlertDialog(
-        context: Context,
         @StringRes titleRes: Int? = null,
         @StringRes messageRes: Int? = null,
         @StringRes positiveButtonTextRes: Int? = null,
@@ -139,10 +147,10 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     ) {
 
         showAlertDialog(
-            getString(context, titleRes),
-            getString(context, messageRes),
-            getString(context, positiveButtonTextRes),
-            getString(context, negativeButtonTextRes),
+            getString(application, titleRes),
+            getString(application, messageRes),
+            getString(application, positiveButtonTextRes),
+            getString(application, negativeButtonTextRes),
             onPositiveClick,
             onNegativeClick,
             isOneAction,
@@ -150,12 +158,20 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
         )
     }
 
-    fun getString(context: Context, @StringRes id: Int?, vararg args: String): String? {
-        return context.getActualString(id, *args)
+    fun getString(@StringRes id: Int, vararg args: String): String {
+        return getString(application, id, *args)!!
     }
 
-    fun getString(context: Context, @StringRes id: Int, vararg args: String): String {
-        return context.getActualString(id, *args)!!
+    fun getString(@StringRes id: Int?, vararg args: String): String? {
+        return getString(application, id, *args)
+    }
+
+    fun getString(context: Context, @StringRes id: Int?, vararg args: String): String? {
+        return if (id != null) {
+            context.getActualString(id, *args)
+        } else {
+            null
+        }
     }
 
     protected abstract fun dispose()

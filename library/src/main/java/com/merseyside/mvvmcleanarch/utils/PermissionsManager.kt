@@ -6,6 +6,9 @@ import android.content.pm.PackageManager
 import android.os.Environment
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import java.lang.IllegalArgumentException
+import java.lang.Math.pow
+import kotlin.math.pow
 
 /**
  * Created by ivan_ on 10.12.2017.
@@ -16,13 +19,15 @@ object PermissionsManager {
         PERMISSIONS: Array<String>,
         code: Int
     ) {
-        if (!isPermissionsGranted(activity, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(
-                activity!!,
-                PERMISSIONS,
-                code
-            )
-        }
+        if (isRequestCodeValid(code)) {
+            if (!isPermissionsGranted(activity, PERMISSIONS)) {
+                ActivityCompat.requestPermissions(
+                    activity!!,
+                    PERMISSIONS,
+                    code
+                )
+            }
+        } else throw IllegalArgumentException("Request code is not valid")
     }
 
     fun verifyStoragePermissions(
@@ -30,12 +35,14 @@ object PermissionsManager {
         PERMISSIONS: Array<String>,
         code: Int
     ) {
-        if (!isPermissionsGranted(fragment.context, PERMISSIONS)) {
-            fragment.requestPermissions(
-                PERMISSIONS,
-                code
-            )
-        }
+        if (isRequestCodeValid(code)) {
+            if (!isPermissionsGranted(fragment.context, PERMISSIONS)) {
+                fragment.requestPermissions(
+                    PERMISSIONS,
+                    code
+                )
+            }
+        } else throw IllegalArgumentException("Request code is not valid")
     }
 
     fun isPermissionsGranted(
@@ -52,5 +59,9 @@ object PermissionsManager {
     fun isExternalStorageReadable(): Boolean {
         val state = Environment.getExternalStorageState()
         return Environment.MEDIA_MOUNTED == state || Environment.MEDIA_MOUNTED_READ_ONLY == state
+    }
+
+    private fun isRequestCodeValid(code: Int): Boolean {
+        return code <= (2.0.pow(16.0))-1
     }
 }

@@ -1,4 +1,4 @@
-package com.merseyside.mvvmcleanarch.data
+package com.merseyside.mvvmcleanarch.data.serialization
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
