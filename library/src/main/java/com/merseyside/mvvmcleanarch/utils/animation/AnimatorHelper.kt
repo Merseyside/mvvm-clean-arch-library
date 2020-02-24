@@ -13,20 +13,48 @@ import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 
-class ValueAnimatorHelper {
-
-    enum class AnimAxis {X_AXIS, Y_AXIS}
-
-    enum class MainPoint {CENTER, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT}
+class AnimatorHelper {
 
     private val mainAnimatorSet: AnimatorSet by lazy {
-        isEmpty = false
-        AnimatorSet()
+        initCallbacks()
+
+        AnimatorSet().apply {
+            addListener(internalListener)
+        }
     }
 
-    var isEmpty: Boolean = true
+    var isReverseAllowed: Boolean = false
 
-    class Builder(val view: View) {
+    private var onEndCallback: (animation: Animator?) -> Unit? = {}
+    private var onRepeatCallback: (animation: Animator?) -> Unit? = {}
+    private var onCancelCallback: (animation: Animator?) -> Unit? = {}
+    private var onStartCallback: (animation: Animator?) -> Unit? = {}
+
+    var isEmpty: Boolean = mainAnimatorSet.childAnimations.size != 0
+
+    private var internalListener: Animator.AnimatorListener? = null
+
+    private fun initCallbacks() {
+        internalListener = object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+                onRepeatCallback.invoke(animation)
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                onEndCallback.invoke(animation)
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+                onCancelCallback.invoke(animation)
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+                onStartCallback.invoke(animation)
+            }
+        }
+    }
+
+    class Builder(val view: View, var isReverse: Boolean = false) {
 
         lateinit var valueAnimator: ValueAnimator
             private set
@@ -98,7 +126,9 @@ class ValueAnimatorHelper {
             animAxis: AnimAxis,
             duration: TimeUnit,
             updateListener : ValueAnimator.AnimatorUpdateListener? = null,
-            animatorListener: Animator.AnimatorListener? = null) : Builder {
+            animatorListener: Animator.AnimatorListener? = null,
+            isLogValues: Boolean = false
+        ) : Builder {
 
             val viewSize = when (animAxis) {
                 AnimAxis.X_AXIS -> {
@@ -114,20 +144,21 @@ class ValueAnimatorHelper {
 
                 while (i < pointPercents.size) {
 
-                        list[i] = (viewSize * list[i].first) to list[i].second
-                        i++
-                    }
-
-                    return translateAnimation(list, animAxis = animAxis,
-                        duration = duration, listener = updateListener, animatorListener = animatorListener)
+                    list[i] = (viewSize * list[i].first) to list[i].second
+                    i++
                 }
+
+                return translateAnimation(list, animAxis = animAxis,
+                    duration = duration, listener = updateListener, animatorListener = animatorListener, isLogValues = isLogValues)
+            }
         }
 
         fun translateAnimation(
             pointFloats: List<Pair<Float, MainPoint>>,
             animAxis: AnimAxis,
             duration: TimeUnit, listener : ValueAnimator.AnimatorUpdateListener? = null,
-            animatorListener: Animator.AnimatorListener? = null
+            animatorListener: Animator.AnimatorListener? = null,
+            isLogValues: Boolean = false
         ) : Builder {
 
             val floatArray = pointFloats.toMutableList().let { list ->
@@ -150,7 +181,11 @@ class ValueAnimatorHelper {
                     }
                 }
 
-                 recalculateValues(list, animAxis)
+                recalculateValues(list, animAxis).also { if (isReverse) it.reverse() }
+            }
+
+            if (isLogValues) {
+                Logger.log(this, floatArray.joinToString())
             }
 
             valueAnimator = ValueAnimator.ofFloat(*floatArray).apply {
@@ -173,8 +208,9 @@ class ValueAnimatorHelper {
                 }
             }
 
-            if (animatorListener != null)
+            if (animatorListener != null) {
                 valueAnimator.addListener(animatorListener)
+            }
 
             return this
         }
@@ -242,6 +278,8 @@ class ValueAnimatorHelper {
                 }
             }
 
+            array.also { if (isReverse) it.reverse() }
+
             valueAnimator = ValueAnimator.ofFloat(*array.toFloatArray()).apply {
                 this.duration = duration.toMillisLong()
                 if (listener == null) {
@@ -259,6 +297,10 @@ class ValueAnimatorHelper {
                         }
                     }
                 }
+            }
+
+            if (animatorListener != null) {
+                valueAnimator.addListener(animatorListener)
             }
 
             return this
@@ -286,6 +328,7 @@ class ValueAnimatorHelper {
 
                     floats
                 }
+
                 floats.size == 1 -> {
                     val list = floats.toMutableList().apply {
                         when (animAxis) {
@@ -301,10 +344,13 @@ class ValueAnimatorHelper {
 
                     list.toFloatArray()
                 }
+
                 else -> {
                     floats
                 }
             }
+
+            values.also { if (isReverse) it.reverse() }
 
             valueAnimator = ValueAnimator.ofFloat(*values).apply {
                 this.duration = duration.toMillisLong()
@@ -329,39 +375,45 @@ class ValueAnimatorHelper {
                 }
             }
 
-            if (animatorListener != null)
+            if (animatorListener != null) {
                 valueAnimator.addListener(animatorListener)
+            }
 
             return this
         }
 
-        fun alphaAnimation(vararg floats: Float,
-                           duration: TimeUnit,
-                           listener : ValueAnimator.AnimatorUpdateListener? = null,
-                           animatorListener: Animator.AnimatorListener? = null
+        fun alphaAnimation(
+            vararg values: Float,
+            duration: TimeUnit,
+            listener : ValueAnimator.AnimatorUpdateListener? = null,
+            animatorListener: Animator.AnimatorListener? = null
         ): Builder {
 
             val values = when {
-                floats[0] == CURRENT_VALUE -> {
-                    floats[0] = view.alpha
-                    floats
+                values[0] == CURRENT_VALUE -> {
+                    values[0] = view.alpha
+                    values
                 }
-                floats.size == 1 -> {
-                    val list = floats.toMutableList().apply {
+
+                values.size == 1 -> {
+                    val list = values.toMutableList().apply {
                         add(0, view.alpha)
                     }
 
                     list.toFloatArray()
                 }
+
                 else -> {
-                    floats
+                    values
                 }
             }
+
+            values.also { if (isReverse) it.reverse() }
 
             valueAnimator = ValueAnimator.ofFloat(*values).apply {
                 this.duration = duration.toMillisLong()
 
-                var previousValue: Float? = floats[0]
+                var previousValue: Float? = values[0]
 
                 if (listener == null) {
                     addUpdateListener {
@@ -414,6 +466,8 @@ class ValueAnimatorHelper {
                 ints
             }
 
+            values.also { if (isReverse) it.reverse() }
+
             valueAnimator = ValueAnimator.ofArgb(*values).apply {
                 this.duration = duration.toMillisLong()
                 if (listener == null) {
@@ -439,22 +493,38 @@ class ValueAnimatorHelper {
         }
     }
 
+    @Throws(UnsupportedOperationException::class)
     fun reverse() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mainAnimatorSet.reverse()
+        if (isReverseAllowed) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mainAnimatorSet.reverse()
+            } else {
+                legacyReverse(mainAnimatorSet)
+            }
         } else {
-            for (animator in mainAnimatorSet.childAnimations) {
-                (animator as ValueAnimator).reverse()
+            throw UnsupportedOperationException()
+        }
+    }
+
+    private fun legacyReverse(rootAnimator: Animator) {
+
+        if (rootAnimator is AnimatorSet) {
+            for (animator in rootAnimator.childAnimations) {
+                legacyReverse(animator)
+            }
+        } else {
+            if (rootAnimator is ValueAnimator) {
+                rootAnimator.reverse()
             }
         }
     }
 
     fun addAnimatorList(animatorList: AnimatorList, listener: Animator.AnimatorListener? = null) {
-        val animatorSet = animatorList.toAnimatorSet()
+        val animatorSet = animatorList.getAnimator()
 
         when (animatorList.approach) {
-            AnimatorList.Approach.SEQUENTIALLY -> addSequentialAnimation(animatorSet, listener)
-            AnimatorList.Approach.TOGETHER -> addTogetherAnimation(animatorSet, listener)
+            Approach.SEQUENTIALLY -> addSequentialAnimation(animatorSet, listener)
+            Approach.TOGETHER -> addTogetherAnimation(animatorSet, listener)
         }
     }
 
@@ -480,7 +550,10 @@ class ValueAnimatorHelper {
             stop()
         }
 
-        mainAnimatorSet.start()
+        mainAnimatorSet.apply {
+            start()
+            isReverseAllowed = true
+        }
     }
 
     fun setDelay(delay: Long) {
@@ -493,6 +566,41 @@ class ValueAnimatorHelper {
 
     fun stop() {
         mainAnimatorSet.cancel()
+    }
+
+    fun addListener(listener: Animator.AnimatorListener? = null) {
+        mainAnimatorSet.addListener(listener)
+    }
+
+    fun removeListener(listener: Animator.AnimatorListener? = null) {
+        mainAnimatorSet.removeListener(listener)
+    }
+
+    fun setOnEndCallback(onEnd: (animation: Animator?) -> Unit) {
+        this.onEndCallback = onEnd
+    }
+
+    fun setOnStartCallback(onStart: (animation: Animator?) -> Unit) {
+        this.onStartCallback = onStart
+    }
+
+    fun setOnRepeatCallback(onRepeat: (animation: Animator?) -> Unit) {
+        this.onRepeatCallback = onRepeat
+    }
+
+    fun setOnCancelCallback(onCancel: (animation: Animator?) -> Unit) {
+        this.onCancelCallback = onCancel
+    }
+
+    fun removeAllListeners() {
+        mainAnimatorSet.removeAllListeners()
+    }
+
+    fun removeAllCallbacks() {
+        onEndCallback = {}
+        onRepeatCallback  = {}
+        onCancelCallback = {}
+        onStartCallback = {}
     }
 
     fun isNotEmpty(): Boolean = !isEmpty

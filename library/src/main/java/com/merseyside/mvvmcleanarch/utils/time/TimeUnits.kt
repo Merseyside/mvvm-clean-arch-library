@@ -6,7 +6,40 @@ object Conversions {
     const val HOURS_CONST = 24L
 }
 
+operator fun <T: TimeUnit> T.plus(increment: Long): T {
+    return newInstance(value + increment) as T
+}
+
+operator fun <T: TimeUnit> T.div(divider: Long): T {
+    return newInstance(value / divider) as T
+}
+
+operator fun <T: TimeUnit> T.times(times: Long): T {
+    return newInstance(value * times) as T
+}
+
+operator fun <T: TimeUnit> T.minus(unary: Long): T {
+    return newInstance(value - unary) as T
+}
+
+operator fun <T: TimeUnit> T.plus(increment: TimeUnit): T {
+    return this + convert(increment)
+}
+
+operator fun <T: TimeUnit> T.div(divider: TimeUnit): T {
+    return this / convert(divider)
+}
+
+operator fun <T: TimeUnit> T.times(times: TimeUnit): T {
+    return this * convert(times)
+}
+
+operator fun <T: TimeUnit> T.minus(unary: TimeUnit): T {
+    return this - convert(unary)
+}
+
 interface TimeUnit {
+
     val value: Long
 
     fun toMillisLong(): Long {
@@ -19,29 +52,31 @@ interface TimeUnit {
     fun toHours(): Hours
     fun toDays(): Days
 
+    fun newInstance(value: Long): TimeUnit
+
     fun toLong(): Long {
         return value
     }
 
-    operator fun TimeUnit.plus(increment: Long): Long {
-        return value + increment
-    }
+    fun convert(convertingUnit: TimeUnit): Long {
 
-    operator fun TimeUnit.div(divider: Long): Long {
-        return value / divider
-    }
+        val value = when (this) {
+            is Millis -> convertingUnit.toMillis()
+            is Seconds -> convertingUnit.toSeconds()
+            is Minutes -> convertingUnit.toMinutes()
+            is Hours -> convertingUnit.toHours()
+            is Days -> convertingUnit.toDays()
+            else -> throw IllegalArgumentException("Wrong type")
+        }
 
-    operator fun TimeUnit.times(mul: Long): Long {
-        return value * mul
-    }
-
-    operator fun TimeUnit.minus(operand: Long): Long {
-        return value - operand
+        return value.toLong()
     }
 }
 
 
 inline class Millis(override val value: Long): TimeUnit {
+
+    internal constructor(unit: TimeUnit): this(unit.value)
 
     override fun toMillis(): Millis {
         return this
@@ -62,9 +97,15 @@ inline class Millis(override val value: Long): TimeUnit {
     override fun toDays(): Days {
         return Days(toHours() / Conversions.HOURS_CONST)
     }
+
+    override fun newInstance(value: Long): Millis {
+        return Millis(value)
+    }
 }
 
 inline class Seconds(override val value: Long): TimeUnit {
+
+    internal constructor(unit: TimeUnit): this(unit.value)
 
     override fun toMillis(): Millis {
         return Millis(value * Conversions.MILLIS_CONST)
@@ -85,9 +126,15 @@ inline class Seconds(override val value: Long): TimeUnit {
     override fun toDays(): Days {
         return Days(toHours() / Conversions.HOURS_CONST)
     }
+
+    override fun newInstance(value: Long): Seconds {
+        return Seconds(value)
+    }
 }
 
 inline class Minutes(override val value: Long): TimeUnit {
+
+    internal constructor(unit: TimeUnit): this(unit.value)
 
     override fun toMillis(): Millis {
         return Millis(toSeconds() * Conversions.MILLIS_CONST)
@@ -108,9 +155,15 @@ inline class Minutes(override val value: Long): TimeUnit {
     override fun toDays(): Days {
         return Days(toHours() / Conversions.HOURS_CONST)
     }
+
+    override fun newInstance(value: Long): Minutes {
+        return Minutes(value)
+    }
 }
 
 inline class Hours(override val value: Long): TimeUnit {
+
+    internal constructor(unit: TimeUnit): this(unit.value)
 
     override fun toMillis(): Millis {
         return Millis(toSeconds() * Conversions.MILLIS_CONST)
@@ -131,9 +184,15 @@ inline class Hours(override val value: Long): TimeUnit {
     override fun toDays(): Days {
         return Days(value / Conversions.HOURS_CONST)
     }
+
+    override fun newInstance(value: Long): Hours {
+        return Hours(value)
+    }
 }
 
 inline class Days(override val value: Long): TimeUnit {
+
+    internal constructor(unit: TimeUnit): this(unit.value)
 
     override fun toMillis(): Millis {
         return Millis(toSeconds() * Conversions.MILLIS_CONST)
@@ -148,10 +207,14 @@ inline class Days(override val value: Long): TimeUnit {
     }
 
     override fun toHours(): Hours {
-        return Hours(value * Conversions.SECONDS_MINUTES_CONST)
+        return Hours(value * Conversions.HOURS_CONST)
     }
 
     override fun toDays(): Days {
         return this
+    }
+
+    override fun newInstance(value: Long): Days {
+        return Days(value)
     }
 }

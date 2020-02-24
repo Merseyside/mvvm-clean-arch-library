@@ -105,3 +105,8 @@ fun isTablet(context: Context): Boolean {
             and Configuration.SCREENLAYOUT_SIZE_MASK)
             >= Configuration.SCREENLAYOUT_SIZE_LARGE)
 }
+
+fun <T> T?.log(tag: Any? = null, msg: Any? = this): T? {
+    Logger.log(tag ?: "Log", msg ?: "null")
+    return this
+}

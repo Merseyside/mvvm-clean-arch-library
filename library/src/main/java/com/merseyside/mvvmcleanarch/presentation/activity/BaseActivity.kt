@@ -2,6 +2,8 @@ package com.merseyside.mvvmcleanarch.presentation.activity
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -16,6 +18,7 @@ import com.merseyside.mvvmcleanarch.presentation.fragment.BaseFragment
 import com.merseyside.mvvmcleanarch.presentation.view.IActivityView
 import com.merseyside.mvvmcleanarch.presentation.view.OnBackPressedListener
 import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
+import com.merseyside.mvvmcleanarch.presentation.view.OrientationHandler
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SnackbarManager
@@ -24,22 +27,28 @@ import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
 
-
-abstract class BaseActivity : AppCompatActivity(), IActivityView {
+abstract class BaseActivity : AppCompatActivity(), IActivityView, OrientationHandler {
 
     override var keyboardUnregistrar: Any? = null
 
+    final override var orientation: Orientation? = null
+
     private var application: BaseApplication? = null
-    lateinit var context: Context
-        private set
+    private lateinit var mainContext: Context
+
+    override fun getContext(): Context {
+        return mainContext
+    }
 
     lateinit var snackbarManager: SnackbarManager
+
+    override fun onOrientationChanged(orientation: Orientation, savedInstanceState: Bundle?) {}
 
     override fun attachBaseContext(newBase: Context?) {
         if (newBase != null) {
             val localeManager = LocaleManager(newBase)
 
-            super.attachBaseContext(getLocalizedContext(localeManager).also { context = it })
+            super.attachBaseContext(getLocalizedContext(localeManager).also { mainContext = it })
         }
     }
 
@@ -49,6 +58,8 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         if (applicationContext is BaseApplication) {
             application = applicationContext as BaseApplication
         }
+
+        setOrientation(resources, savedInstanceState)
 
         if (this !is BaseMvvmActivity<*, *>) {
             setContentView(getLayoutId())
@@ -79,6 +90,12 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         unregisterKeyboardListener()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        saveOrientation(outState)
+    }
+
     open fun updateLanguage(context: Context) {}
 
     override fun setLanguage(lang: String?) {
@@ -86,10 +103,10 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
 
             val language = lang ?: getLanguage()
 
-            context = application!!.setLanguage(language)
+            mainContext = application!!.setLanguage(language)
 
-            getCurrentFragment()?.updateLanguage(context)
-            updateLanguage(context)
+            getCurrentFragment()?.updateLanguage(mainContext)
+            updateLanguage(mainContext)
         }
     }
 
@@ -128,12 +145,9 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         }
     }
 
-    override fun hideKeyboard() {
-        val view = currentFocus
-        if (view != null) {
-            val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-        }
+    override fun hideKeyboard(context: Context?, view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun onBackPressed() {

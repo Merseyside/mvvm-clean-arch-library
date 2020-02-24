@@ -13,12 +13,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.merseyside.mvvmcleanarch.BaseApplication
 import com.merseyside.mvvmcleanarch.presentation.activity.BaseActivity
+import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
 import com.merseyside.mvvmcleanarch.presentation.view.IView
 import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
+import com.merseyside.mvvmcleanarch.presentation.view.OrientationHandler
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SnackbarManager
 
-abstract class BaseFragment : Fragment(), IView {
+abstract class BaseFragment : Fragment(), IView, OrientationHandler {
 
     final override var keyboardUnregistrar: Any? = null
 
@@ -30,6 +32,8 @@ abstract class BaseFragment : Fragment(), IView {
 
     var snackbarManager: SnackbarManager? = null
 
+    final override var orientation: Orientation? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is BaseActivity) {
@@ -38,12 +42,14 @@ abstract class BaseFragment : Fragment(), IView {
     }
 
     override fun getContext(): Context {
-        return baseActivityView.context
+        return baseActivityView.getContext()
     }
 
     fun getLanguage(): String {
         return baseActivityView.getLanguage()
     }
+
+    override fun onOrientationChanged(orientation: Orientation, savedInstanceState: Bundle?) {}
 
     @CallSuper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -62,6 +68,8 @@ abstract class BaseFragment : Fragment(), IView {
                 this.requestCode = savedInstanceState.getInt(REQUEST_CODE_KEY)
             }
         }
+
+        setOrientation(resources, savedInstanceState)
 
         snackbarManager = baseActivityView.snackbarManager
 
@@ -101,6 +109,8 @@ abstract class BaseFragment : Fragment(), IView {
         } else if (requestCode != null) {
             outState.putInt(REQUEST_CODE_KEY, requestCode!!)
         }
+
+        saveOrientation(outState)
     }
 
     override fun onStop() {
@@ -121,8 +131,8 @@ abstract class BaseFragment : Fragment(), IView {
         }
     }
 
-    fun hideKeyboard() {
-        baseActivityView.hideKeyboard()
+    fun hideKeyboard(view: View) {
+        baseActivityView.hideKeyboard(context, view)
     }
 
     override fun handleError(throwable: Throwable) {

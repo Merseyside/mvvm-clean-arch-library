@@ -1,28 +1,28 @@
 package com.merseyside.mvvmcleanarch.presentation.adapter
 
 import com.merseyside.mvvmcleanarch.presentation.model.BaseAdapterViewModel
+import com.merseyside.mvvmcleanarch.utils.Logger
 
 abstract class BaseSelectableAdapter<M: Any, T: BaseAdapterViewModel<M>> : BaseAdapter<M, T>() {
 
     interface OnItemSelectedListener<M> {
-        fun onSelected(isSelected: Boolean, item: M)
+        fun onSelected(item: M, isSelected: Boolean, isSelectedByUser: Boolean)
     }
 
     private val listeners: MutableList<OnItemSelectedListener<M>> by lazy { ArrayList<OnItemSelectedListener<M>>() }
 
     private var selectedItem: T? = null
-    set(value) {
-        field = value
-
-        val selectableItem = value as SelectableItemInterface
-
-        listeners.forEach { listener ->
-            listener.onSelected(selectableItem.isSelected, value.getItem())
-        }
-    }
 
     fun setOnItemSelectedListener(listener: OnItemSelectedListener<M>) {
         listeners.add(listener)
+
+        if (selectedItem != null) {
+            listener.onSelected(
+                isSelected = true,
+                isSelectedByUser = false,
+                item = selectedItem!!.getItem()
+            )
+        }
     }
 
     fun removeOnItemClickListener(listener: OnItemSelectedListener<M>) {
@@ -64,11 +64,9 @@ abstract class BaseSelectableAdapter<M: Any, T: BaseAdapterViewModel<M>> : BaseA
     private fun selectFirstSelectableItem() {
         if (!isAllowToCancelSelection()) {
 
-            getAllModels().forEach {item ->
+            getAllModels().forEach { item ->
                 if (item is SelectableItemInterface) {
-                    item.isSelected = true
-
-                    selectedItem = item
+                    setItemSelected(item)
                     return
                 }
             }
@@ -79,20 +77,7 @@ abstract class BaseSelectableAdapter<M: Any, T: BaseAdapterViewModel<M>> : BaseA
         if (item is SelectableItemInterface) {
             item.setOnItemClickListener(object : OnItemClickListener<M> {
                 override fun onItemClicked(obj: M) {
-
-                    if (!item.isSelected) {
-
-                        if (selectedItem != null) {
-                            (selectedItem as SelectableItemInterface).isSelected = false
-                        }
-
-                        item.isSelected = true
-                        selectedItem = item
-                    } else if (isAllowToCancelSelection()) {
-                        item.isSelected = false
-
-                        selectedItem = null
-                    }
+                    setItemSelected(item, true)
                 }
             })
         }
@@ -102,17 +87,10 @@ abstract class BaseSelectableAdapter<M: Any, T: BaseAdapterViewModel<M>> : BaseA
         if (selectedItem == null || !selectedItem!!.areItemsTheSame(item)) {
             val found = find(item)
 
-           if (found != null && found is SelectableItemInterface) {
-                     selectedItem?.let {
-                         (selectedItem as SelectableItemInterface).isSelected = false
-                     }
-
-                     found.isSelected = true
-                     selectedItem = found
-                 }
-
-                 return
-           }
+            if (found != null && found is SelectableItemInterface) {
+                setItemSelected(found)
+            }
+        }
     }
 
     fun selectItem(position: Int) {
@@ -120,13 +98,7 @@ abstract class BaseSelectableAdapter<M: Any, T: BaseAdapterViewModel<M>> : BaseA
         if (item is SelectableItemInterface) {
 
             if (selectedItem == null || !selectedItem!!.areItemsTheSame(item.obj)) {
-                selectedItem?.let {
-                    (selectedItem as SelectableItemInterface).isSelected = false
-                }
-
-                item.isSelected = true
-
-                selectedItem = item
+                setItemSelected(item)
             }
         }
     }
@@ -134,6 +106,37 @@ abstract class BaseSelectableAdapter<M: Any, T: BaseAdapterViewModel<M>> : BaseA
     fun getSelectedItem(): M? {
         return selectedItem?.getItem()
     }
+
+    private fun setItemSelected(item: T, isSelectedByUser: Boolean = false) {
+
+        item as SelectableItemInterface
+
+        if (!item.isSelected) {
+
+            if (selectedItem != null) {
+                (selectedItem as SelectableItemInterface).isSelected = false
+            }
+
+            item.isSelected = true
+            selectedItem = item
+
+            notifyItemSelected(item, isSelectedByUser)
+        } else if (isAllowToCancelSelection()) {
+            item.isSelected = false
+
+            notifyItemSelected(item, isSelectedByUser)
+            selectedItem = null
+        }
+    }
+
+    private fun notifyItemSelected(item: T, isSelectedByUser: Boolean) {
+        item as SelectableItemInterface
+
+        listeners.forEach { listener ->
+            listener.onSelected(item.getItem(), item.isSelected, isSelectedByUser)
+        }
+    }
+
 
     abstract fun isAllowToCancelSelection(): Boolean
 

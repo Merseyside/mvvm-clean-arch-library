@@ -1,7 +1,9 @@
 package com.merseyside.mvvmcleanarch.presentation.view
 
+import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
 import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
 
 interface IView {
@@ -51,4 +53,6 @@ interface IView {
             (keyboardUnregistrar!! as Unregistrar).unregister()
         }
     }
+
+    fun onOrientationChanged(orientation: Orientation, savedInstanceState: Bundle?)
 }

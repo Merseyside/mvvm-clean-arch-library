@@ -3,26 +3,32 @@ package com.merseyside.mvvmcleanarch.utils.animation
 import android.animation.Animator
 import android.animation.AnimatorSet
 
-class AnimatorList(internal val approach: Approach) {
+class AnimatorList(internal val approach: Approach): BaseAnimator() {
 
-    enum class Approach { SEQUENTIALLY, TOGETHER }
+    internal val list: MutableList<BaseAnimator> = ArrayList()
+    internal var animatorSet: AnimatorSet? = null
 
-    internal val list: MutableList<Animator> = ArrayList()
-
-    fun addAnimator(animator: Animator) {
+    fun addAnimator(animator: BaseAnimator) {
         list.add(animator)
     }
 
-    fun addAnimatorList(animatorList: AnimatorList) {
-        list.add(animatorList.toAnimatorSet())
-    }
-    
-    fun toAnimatorSet(): AnimatorSet {
-        return AnimatorSet().apply {
+    override fun getAnimator(): Animator {
+        return animatorSet ?: AnimatorSet().apply {
             when (approach) {
-                Approach.SEQUENTIALLY -> playSequentially(list)
-                Approach.TOGETHER -> playTogether(list)
+                Approach.SEQUENTIALLY -> playSequentially(list.map { it.getAnimator() })
+                Approach.TOGETHER -> playTogether(list.map { it.getAnimator() })
             }
+
+            animatorSet = this
         }
     }
+
+    override fun setReverse(isReverse: Boolean) {
+        animatorSet = null
+        list.forEach { it.setReverse(isReverse) }
+    }
+
+    fun isEmpty() = list.isEmpty()
+
+    fun isNotEmpty() = !isEmpty()
 }
