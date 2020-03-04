@@ -11,7 +11,9 @@ import com.merseyside.mvvmcleanarch.utils.animation.BaseAnimatorBuilder
 import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
-class ColorAnimator(builder: Builder) : BaseSingleAnimator(builder) {
+class ColorAnimator(
+    builder: ColorAnimator.Builder
+) : BaseSingleAnimator(builder) {
 
     class Builder(
         view: View,
@@ -26,12 +28,15 @@ class ColorAnimator(builder: Builder) : BaseSingleAnimator(builder) {
             duration: TimeUnit
         ): Animator {
 
+            ints.forEachIndexed { index, value ->
+                if (value == getCurrentValue()) {
+                    ints[index] = calculateCurrentValue()
+                }
+            }
+
             val values = if (ints.size == 1) {
                 ints.toMutableList().apply {
-                    val background: Drawable = view.background
-                    if (background is ColorDrawable) {
-                        add(0, background.color)
-                    }
+                    add(0, calculateCurrentValue())
                 }.toIntArray().also {
                     this.values = it
                 }
@@ -58,6 +63,19 @@ class ColorAnimator(builder: Builder) : BaseSingleAnimator(builder) {
                 return rgbsAnimation(values!!.copyOf(), duration)
             } else {
                 throw IllegalArgumentException("Points haven't been set")
+            }
+        }
+
+        override fun getCurrentValue(): Int {
+            return CURRENT_INT
+        }
+
+        override fun calculateCurrentValue(): Int {
+            val background: Drawable = view.background
+            if (background is ColorDrawable) {
+                return background.color
+            } else {
+                throw IllegalArgumentException("Background is not ColorDrawable")
             }
         }
     }

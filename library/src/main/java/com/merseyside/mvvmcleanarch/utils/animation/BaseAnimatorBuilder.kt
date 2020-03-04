@@ -2,6 +2,7 @@ package com.merseyside.mvvmcleanarch.utils.animation
 
 import android.animation.Animator
 import android.view.View
+import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 abstract class BaseAnimatorBuilder<T>(
@@ -15,6 +16,8 @@ abstract class BaseAnimatorBuilder<T>(
     internal abstract fun build(): Animator
 
     abstract fun getCurrentValue(): Any
+
+    abstract fun calculateCurrentValue(): Any
 
     companion object {
         internal const val CURRENT_FLOAT = 9999F

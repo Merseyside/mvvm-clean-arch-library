@@ -10,9 +10,7 @@ abstract class BaseSingleAnimator(
     var nativeAnimator: Animator? = null
     
     override fun setReverse(isReverse: Boolean) {
-        Logger.log(this, "setReverse $isReverse")
         if (builder.isReverse != isReverse) {
-            Logger.log(this, "setReverse !!!")
             nativeAnimator = null
             
             builder.isReverse = isReverse
@@ -21,16 +19,10 @@ abstract class BaseSingleAnimator(
 
     override fun getAnimator(): Animator {
         return if (nativeAnimator == null) {
-            Logger.log(this, "create new animator")
             nativeAnimator = builder.build()
-
-            getListeners().forEach {
-                nativeAnimator!!.addListener(it)
-            }
 
             return nativeAnimator!!
         } else {
-            Logger.log(this, "use old animator")
             nativeAnimator!!
         }
     }

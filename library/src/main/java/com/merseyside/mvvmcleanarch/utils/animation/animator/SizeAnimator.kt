@@ -4,40 +4,41 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.view.View
 import com.merseyside.mvvmcleanarch.utils.Logger
-import com.merseyside.mvvmcleanarch.utils.animation.AnimAxis
-import com.merseyside.mvvmcleanarch.utils.animation.AnimatorHelper
+import com.merseyside.mvvmcleanarch.utils.animation.Axis
 import com.merseyside.mvvmcleanarch.utils.animation.BaseAnimatorBuilder
 import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
-class SizeAnimator(builder: Builder) : BaseSingleAnimator(builder) {
+class SizeAnimator(
+    builder: SizeAnimator.Builder
+) : BaseSingleAnimator(builder) {
 
     class Builder(
         view: View,
         duration: TimeUnit
     ) : BaseAnimatorBuilder<SizeAnimator>(view, duration) {
 
-        var values: FloatArray? = null
-        var animAxis: AnimAxis? = null
+        var values: IntArray? = null
+        var axis: Axis? = null
 
-        fun setInPercents(values: FloatArray, animAxis: AnimAxis) {
-            this.animAxis = animAxis
+        fun setInPercents(values: IntArray, axis: Axis) {
+            this.axis = axis
 
-            this.values = getPixelsFromPercents(values, animAxis)
+            this.values = getPixelsFromPercents(values, axis)
         }
 
         private fun getPixelsFromPercents(
-            percents: FloatArray,
-            animAxis: AnimAxis
-        ) : FloatArray {
+            percents: IntArray,
+            axis: Axis
+        ) : IntArray {
 
-            val newValues = FloatArray(percents.size)
+            val newValues = IntArray(percents.size)
 
-            val viewSize = when (animAxis) {
-                AnimAxis.X_AXIS -> {
+            val viewSize = when (axis) {
+                Axis.X -> {
                     view.width
                 }
-                AnimAxis.Y_AXIS -> {
+                Axis.Y -> {
                     view.height
                 }
             }
@@ -55,51 +56,40 @@ class SizeAnimator(builder: Builder) : BaseSingleAnimator(builder) {
         }
 
         private fun changeSizeAnimation(
-            floats: FloatArray,
-            animAxis: AnimAxis,
+            ints: IntArray,
+            axis: Axis,
             duration: TimeUnit
         ) : Animator {
 
-            val array = floats.toMutableList()
+            val array = ints.toMutableList()
 
-            if (floats[0] == AnimatorHelper.CURRENT_VALUE) {
-                when (animAxis) {
-                    AnimAxis.Y_AXIS ->
-                        array[0] = view.height.toFloat()
-                    AnimAxis.X_AXIS -> {
-                        array[0] = view.width.toFloat()
-                    }
-
+            array.forEachIndexed { index, value ->
+                if (value == getCurrentValue()) {
+                    array[index] = calculateCurrentValue()
                 }
+            }
 
-            } else if (floats.size == 1) {
+            if (ints.size == 1) {
 
-                when (animAxis) {
-                    AnimAxis.Y_AXIS ->
-                        array.add(0, view.height.toFloat())
-                    AnimAxis.X_AXIS -> {
-                        array.add(0, view.width.toFloat())
-                    }
+                array.add(0, calculateCurrentValue())
 
-                }
-
-                this.values = array.toFloatArray()
+                this.values = array.toIntArray()
             }
 
             array.also { if (isReverse) it.reverse() }
 
-            return ValueAnimator.ofFloat(*array.toFloatArray()).apply {
+            return ValueAnimator.ofInt(*array.toIntArray()).apply {
                 this.duration = duration.toMillisLong()
 
                 addUpdateListener { valueAnimator ->
-                    val value = (valueAnimator.animatedValue as Float).toInt()
+                    val value = valueAnimator.animatedValue as Int
 
-                    when (animAxis) {
-                        AnimAxis.X_AXIS -> {
+                    when (axis) {
+                        Axis.X -> {
                             view.layoutParams.width = value
                         }
 
-                        AnimAxis.Y_AXIS -> {
+                        Axis.Y -> {
                             view.layoutParams.height = value
                         }
                     }
@@ -109,10 +99,25 @@ class SizeAnimator(builder: Builder) : BaseSingleAnimator(builder) {
         }
 
         override fun build(): Animator {
-            if (values != null && animAxis != null) {
-                return changeSizeAnimation(values!!.copyOf(), animAxis!!, duration)
+            if (values != null && axis != null) {
+                return changeSizeAnimation(values!!.copyOf(), axis!!, duration)
             } else {
                 throw IllegalArgumentException("Points haven't been set")
+            }
+        }
+
+        override fun getCurrentValue(): Int {
+            return CURRENT_INT
+        }
+
+        override fun calculateCurrentValue(): Int {
+            return when (axis) {
+                Axis.Y ->
+                    view.height
+                Axis.X -> {
+                    view.width
+                }
+                null -> throw IllegalArgumentException()
             }
         }
     }

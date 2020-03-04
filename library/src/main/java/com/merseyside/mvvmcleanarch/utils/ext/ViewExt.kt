@@ -8,6 +8,8 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import com.merseyside.mvvmcleanarch.presentation.activity.BaseActivity
+import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
 
 fun EditText.setTextWithCursor(text: String?) {
     if (this.text.toString() != text) {
@@ -32,6 +34,16 @@ fun View.getActivity(): Activity {
     }
 
     throw IllegalStateException("View hasn't been bind to activity!")
+}
+
+fun View.getOrientation(): Orientation {
+    val activity = this.getActivity()
+
+    return if (activity is BaseActivity) {
+        activity.orientation!!
+    } else {
+        throw IllegalStateException("Your activity has to extend BaseActivity")
+    }
 }
 
 interface TextChangeListenerUnregistrar {

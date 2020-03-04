@@ -8,7 +8,7 @@ import com.merseyside.mvvmcleanarch.utils.animation.*
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 class TransitionAnimator (
-    builder: Builder
+    builder: TransitionAnimator.Builder
 ): BaseSingleAnimator(builder) {
 
     class Builder(
@@ -16,30 +16,33 @@ class TransitionAnimator (
         duration: TimeUnit
     ): BaseAnimatorBuilder<TransitionAnimator>(view, duration) {
 
+        private val current by lazy { CURRENT_FLOAT to MainPoint.TOP_LEFT }
+
         private var pointList: List<Pair<Float, MainPoint>>? = null
-        private var animAxis: AnimAxis? = null
+        private var axis: Axis? = null
+        var isLogValues = false
 
-        fun setInPercents(pointPercents: List<Pair<Float, MainPoint>>, animAxis: AnimAxis) {
-            this.animAxis = animAxis
+        fun setInPercents(vararg pointPercents: Pair<Float, MainPoint>, axis: Axis) {
+            this.axis = axis
 
-            pointList = getPixelsFromPercents(pointPercents)
+            pointList = getPixelsFromPercents(pointPercents.toList())
         }
 
-        fun setInPixels(pointPixels: List<Pair<Float, MainPoint>>, animAxis: AnimAxis) {
-            this.animAxis = animAxis
+        fun setInPixels(vararg pointPixels: Pair<Float, MainPoint>, axis: Axis) {
+            this.axis = axis
 
-            pointList = pointPixels
+            pointList = pointPixels.toList()
         }
 
         private fun getPixelsFromPercents(
             pointPercents: List<Pair<Float, MainPoint>>
         ): List<Pair<Float, MainPoint>> {
 
-            val viewSize = when (animAxis!!) {
-                AnimAxis.X_AXIS -> {
+            val viewSize = when (axis!!) {
+                Axis.X -> {
                     (view.parent as View).width
                 }
-                AnimAxis.Y_AXIS -> {
+                Axis.Y -> {
                     (view.parent as View).height
                 }
             }
@@ -49,7 +52,10 @@ class TransitionAnimator (
 
                 while (i < pointPercents.size) {
 
-                    list[i] = (viewSize * list[i].first) to list[i].second
+                    if (list[i] != getCurrentValue()) {
+                        list[i] = (viewSize * list[i].first) to list[i].second
+                    }
+
                     i++
                 }
 
@@ -59,9 +65,8 @@ class TransitionAnimator (
 
         private fun translateAnimation(
             pointFloats: List<Pair<Float, MainPoint>>,
-            animAxis: AnimAxis,
-            duration: TimeUnit,
-            isLogValues: Boolean = false
+            axis: Axis,
+            duration: TimeUnit
         ) : Animator {
 
             val floatArray = pointFloats.toMutableList().let { list ->
@@ -73,13 +78,12 @@ class TransitionAnimator (
                 }
 
                 if (pointFloats.size == 1) {
-
-                    list.add(calculateCurrentValue())
+                    list.add(0, calculateCurrentValue())
 
                     pointList = list
                 }
 
-                recalculateValues(list, animAxis).also {
+                recalculateValues(list, axis).also {
                     if (isReverse) it.reverse()
                 }
             }
@@ -93,26 +97,28 @@ class TransitionAnimator (
 
                 addUpdateListener { valueAnimator ->
                     val value = valueAnimator.animatedValue as Float
-                    when (animAxis) {
-                        AnimAxis.X_AXIS ->
+
+                    if (isLogValues) {
+                        Logger.log(this@Builder, value)
+                    }
+                    when (axis) {
+                        Axis.X ->
                             view.x = value
 
-                        AnimAxis.Y_AXIS ->
+                        Axis.Y ->
                             view.y = value
                     }
-
-                    view.requestLayout()
                 }
             }
         }
 
-        private fun recalculateValues(values: MutableList<Pair<Float, MainPoint>>, animAxis: AnimAxis) : FloatArray {
+        private fun recalculateValues(values: MutableList<Pair<Float, MainPoint>>, axis: Axis) : FloatArray {
 
-            val viewSize = when (animAxis) {
-                AnimAxis.X_AXIS -> {
+            val viewSize = when (axis) {
+                Axis.X -> {
                     view.width
                 }
-                AnimAxis.Y_AXIS -> {
+                Axis.Y -> {
                     view.height
                 }
             }
@@ -130,29 +136,29 @@ class TransitionAnimator (
                     }
 
                     MainPoint.TOP_RIGHT -> {
-                        when (animAxis) {
-                            AnimAxis.X_AXIS ->
+                        when (axis) {
+                            Axis.X ->
                                 floatArray[i] = value + viewSize
-                            AnimAxis.Y_AXIS -> {}
+                            Axis.Y -> {}
                         }
                     }
 
                     MainPoint.BOTTOM_LEFT -> {
-                        when (animAxis) {
-                            AnimAxis.X_AXIS -> {}
+                        when (axis) {
+                            Axis.X -> {}
 
-                            AnimAxis.Y_AXIS -> {
+                            Axis.Y -> {
                                 floatArray[i] = value - viewSize
                             }
                         }
                     }
 
                     MainPoint.BOTTOM_RIGHT -> {
-                        when (animAxis) {
-                            AnimAxis.X_AXIS -> {
+                        when (axis) {
+                            Axis.X -> {
                                 floatArray[i] = value - viewSize
                             }
-                            AnimAxis.Y_AXIS -> {
+                            Axis.Y -> {
                                 floatArray[i] = value - viewSize
                             }
                         }
@@ -170,14 +176,14 @@ class TransitionAnimator (
         }
 
         override fun getCurrentValue(): Pair<Float, MainPoint> {
-            return CURRENT_FLOAT to MainPoint.TOP_LEFT
+            return current
         }
 
-        private fun calculateCurrentValue(): Pair<Float, MainPoint> {
-            return when (animAxis) {
-                AnimAxis.Y_AXIS ->
+        override fun calculateCurrentValue(): Pair<Float, MainPoint> {
+            return when (axis) {
+                Axis.Y ->
                     view.y to MainPoint.TOP_LEFT
-                AnimAxis.X_AXIS ->
+                Axis.X ->
                     view.x to MainPoint.TOP_LEFT
                 null -> throw NullPointerException()
             }
@@ -185,8 +191,8 @@ class TransitionAnimator (
 
         @Throws(IllegalArgumentException::class)
         override fun build(): Animator {
-            if (pointList != null && animAxis != null) {
-                return translateAnimation(pointList!!, animAxis!!, duration)
+            if (pointList != null && axis != null) {
+                return translateAnimation(pointList!!, axis!!, duration)
             } else {
                 throw IllegalArgumentException("Points haven't been set")
             }

@@ -5,6 +5,7 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.os.Build
 import com.merseyside.mvvmcleanarch.utils.Logger
+import com.merseyside.mvvmcleanarch.utils.log
 
 abstract class BaseAnimator {
 
@@ -52,21 +53,31 @@ abstract class BaseAnimator {
             isReverse = false
         }
 
-        log(this, "start")
         play()
     }
 
     private fun play() {
+
         if (isRunning()) {
             stop()
         }
 
-        if (internalCallback == null || isLegacy) {
-            initInternalCallback()
-        }
+        initInternalCallback()
 
-        log(this, "play")
-        getAnimator().start()
+        getAnimator().apply {
+            applyListeners(this)
+            start()
+        }
+    }
+
+    private fun applyListeners(animator: Animator) {
+        animator.apply {
+            removeAllListeners()
+
+            listenerList.forEach { listener ->
+                addListener(listener)
+            }
+        }
     }
 
     fun stop() {
@@ -94,7 +105,6 @@ abstract class BaseAnimator {
                 return
             } else throw IllegalStateException("Wtf?")
         } else {
-            log(this, "reverse")
             isReverse = true
 
             play()
@@ -154,7 +164,7 @@ abstract class BaseAnimator {
 
             }
 
-            listenerList.add(internalCallback!!)
+            addListener(internalCallback!!)
         }
     }
 
@@ -163,11 +173,6 @@ abstract class BaseAnimator {
         onRepeatCallback  = {}
         onCancelCallback = {}
         onStartCallback = {}
-
-        if (internalCallback != null) {
-            removeListener(internalCallback!!)
-            internalCallback = null
-        }
     }
 
     fun log(tag: Any, msg: Any) {

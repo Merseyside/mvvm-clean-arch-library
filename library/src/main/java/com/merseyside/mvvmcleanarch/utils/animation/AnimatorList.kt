@@ -2,11 +2,16 @@ package com.merseyside.mvvmcleanarch.utils.animation
 
 import android.animation.Animator
 import android.animation.AnimatorSet
+import com.merseyside.mvvmcleanarch.utils.Logger
 
-class AnimatorList(internal val approach: Approach): BaseAnimator() {
+/**
+ * Collects animators and sets order(Approach) of playing.
+ * Default approach is sequential.
+ */
+class AnimatorList(val approach: Approach = Approach.SEQUENTIALLY): BaseAnimator() {
 
     internal val list: MutableList<BaseAnimator> = ArrayList()
-    internal var animatorSet: AnimatorSet? = null
+    private var animatorSet: AnimatorSet? = null
 
     fun addAnimator(animator: BaseAnimator) {
         list.add(animator)
@@ -31,4 +36,12 @@ class AnimatorList(internal val approach: Approach): BaseAnimator() {
     fun isEmpty() = list.isEmpty()
 
     fun isNotEmpty() = !isEmpty()
+
+    fun clear() {
+        list.clear()
+        animatorSet = null
+
+        removeAllCallbacks()
+        removeAllListeners()
+    }
 }

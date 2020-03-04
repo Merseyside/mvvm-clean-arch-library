@@ -3,59 +3,47 @@ package com.merseyside.mvvmcleanarch.utils.animation.animator
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.view.View
-import com.merseyside.mvvmcleanarch.utils.animation.AnimAxis
-import com.merseyside.mvvmcleanarch.utils.animation.AnimatorHelper
+import com.merseyside.mvvmcleanarch.utils.animation.Axis
 import com.merseyside.mvvmcleanarch.utils.animation.BaseAnimatorBuilder
 import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
-class ScaleAnimator(builder: Builder) : BaseSingleAnimator(builder) {
+class ScaleAnimator(
+    builder: ScaleAnimator.Builder
+) : BaseSingleAnimator(builder) {
 
     class Builder(
         view: View,
         duration: TimeUnit
     ) : BaseAnimatorBuilder<ScaleAnimator>(view, duration) {
 
-        var values: FloatArray? = null
-        var animAxis: AnimAxis? = null
+        private var values: FloatArray? = null
+        var axis: Axis? = null
+
+        fun values(vararg values: Float) {
+            this.values = values.toList().toFloatArray()
+        }
 
         private fun scaleAnimation(
             floats: FloatArray,
-            animAxis: AnimAxis,
+            axis: Axis,
             duration: TimeUnit
         ) : Animator {
 
-            val values = when {
-                floats[0] == AnimatorHelper.CURRENT_VALUE -> {
-                    when (animAxis) {
-                        AnimAxis.X_AXIS -> {
-                            floats[0] = view.scaleX
-                        }
-
-                        AnimAxis.Y_AXIS -> {
-                            floats[0] = view.scaleY
-                        }
-                    }
-
-                    floats
+            floats.forEachIndexed { index, value ->
+                if (value == getCurrentValue()) {
+                    floats[index] = calculateCurrentValue()
                 }
+            }
 
-                floats.size == 1 -> {
+            val values = when (floats.size) {
+                1 -> {
                     val list = floats.toMutableList().apply {
-                        when (animAxis) {
-                            AnimAxis.X_AXIS -> {
-                                add(0, view.scaleX)
-                            }
-
-                            AnimAxis.Y_AXIS -> {
-                                add(0, view.scaleY)
-                            }
-                        }
+                        add(0, calculateCurrentValue())
                     }
 
                     list.toFloatArray().also { this.values = it }
                 }
-
                 else -> {
                     floats
                 }
@@ -68,15 +56,13 @@ class ScaleAnimator(builder: Builder) : BaseSingleAnimator(builder) {
                 addUpdateListener { valueAnimator ->
                     val value = valueAnimator.animatedValue as Float
 
-                    when (animAxis) {
-                        AnimAxis.X_AXIS -> {
+                    when (axis) {
+                        Axis.X -> {
                             view.scaleX = value
-                            view.requestLayout()
                         }
 
-                        AnimAxis.Y_AXIS -> {
+                        Axis.Y -> {
                             view.scaleY = value
-                            view.requestLayout()
                         }
                     }
                 }
@@ -84,10 +70,28 @@ class ScaleAnimator(builder: Builder) : BaseSingleAnimator(builder) {
         }
 
         override fun build(): Animator {
-            if (values != null && animAxis != null) {
-                return scaleAnimation(values!!.copyOf(), animAxis!!, duration)
+            if (values != null && axis != null) {
+                return scaleAnimation(values!!.copyOf(), axis!!, duration)
             } else {
                 throw IllegalArgumentException("Points haven't been set")
+            }
+        }
+
+        override fun getCurrentValue(): Float {
+            return CURRENT_FLOAT
+        }
+
+        override fun calculateCurrentValue(): Float {
+            return when (axis) {
+                Axis.X -> {
+                    view.scaleX
+                }
+
+                Axis.Y -> {
+                    view.scaleY
+                }
+
+                null -> throw IllegalArgumentException()
             }
         }
 

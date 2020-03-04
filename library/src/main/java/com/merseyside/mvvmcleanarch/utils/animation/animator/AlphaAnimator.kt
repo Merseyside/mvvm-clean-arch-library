@@ -7,34 +7,40 @@ import com.merseyside.mvvmcleanarch.utils.animation.BaseAnimatorBuilder
 import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
-class AlphaAnimator(builder: Builder) : BaseSingleAnimator(builder) {
+class AlphaAnimator(
+    builder: AlphaAnimator.Builder
+) : BaseSingleAnimator(builder) {
 
     class Builder(
         view: View,
         duration: TimeUnit
     ): BaseAnimatorBuilder<AlphaAnimator>(view, duration) {
 
-        var values: FloatArray? = null
+        private var values: FloatArray? = null
+
+        fun values(vararg values: Float) {
+            this.values = values.toList().toFloatArray()
+        }
 
         private fun alphaAnimation(
             values: FloatArray,
             duration: TimeUnit
         ): Animator {
 
-            var values = when {
-                values[0] == CURRENT_FLOAT -> {
-                    values[0] = view.alpha
-                    values
+            values.forEachIndexed { index, value ->
+                if (value == getCurrentValue()) {
+                    values[index] = calculateCurrentValue()
                 }
+            }
 
-                values.size == 1 -> {
+            val values = when (values.size) {
+                1 -> {
                     val list = values.toMutableList().apply {
                         add(0, view.alpha)
                     }
 
                     list.toFloatArray().also { this.values = it }
                 }
-
                 else -> {
                     values
                 }
@@ -48,9 +54,7 @@ class AlphaAnimator(builder: Builder) : BaseSingleAnimator(builder) {
                 var previousValue: Float? = values[0]
 
                 addUpdateListener { valueAnimator ->
-
                     val value = valueAnimator.animatedValue as Float
-
                     view.alpha = value
 
                     if (previousValue != value) {
@@ -60,7 +64,6 @@ class AlphaAnimator(builder: Builder) : BaseSingleAnimator(builder) {
                         } else if (previousValue?.compareTo(value) == 1 && value == 0f) {
                             view.visibility = View.INVISIBLE
                         }
-
                     }
 
                     previousValue = value
@@ -75,6 +78,14 @@ class AlphaAnimator(builder: Builder) : BaseSingleAnimator(builder) {
             } else {
                 throw IllegalArgumentException("Points haven't been set")
             }
+        }
+
+        override fun getCurrentValue(): Float {
+            return CURRENT_FLOAT
+        }
+
+        override fun calculateCurrentValue(): Float {
+            return view.alpha
         }
     }
 }
