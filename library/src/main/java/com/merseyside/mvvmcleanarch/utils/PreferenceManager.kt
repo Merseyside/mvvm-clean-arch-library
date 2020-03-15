@@ -102,9 +102,15 @@ class PreferenceManager {
 
     fun getStringPreference(
         preference: String,
-        default_value: String?
+        default_value: String
+    ): String {
+        return sharedPreferences.getString(preference, default_value)!!
+    }
+
+    fun getStringPreference(
+        preference: String
     ): String? {
-        return sharedPreferences.getString(preference, default_value)
+        return sharedPreferences.getString(preference, null)
     }
 
     fun getBoolPreference(

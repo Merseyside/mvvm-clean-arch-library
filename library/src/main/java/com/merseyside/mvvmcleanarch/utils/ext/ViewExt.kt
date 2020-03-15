@@ -46,21 +46,24 @@ fun View.getOrientation(): Orientation {
     }
 }
 
-interface TextChangeListenerUnregistrar {
-    fun removeTextListener()
+/**
+ * Base unregistrar for all view callbacks
+ */
+interface CallbackUnregistrar {
+    fun removeCallback()
 }
 
-internal class TextChangeListenerUnregistrarImpl(
+internal class TextChangeListenerUnregistrar(
     private val textView: TextView,
     private val textWatcher: TextWatcher
-): TextChangeListenerUnregistrar {
+): CallbackUnregistrar {
 
-    override fun removeTextListener() {
+    override fun removeCallback() {
         textView.removeTextChangedListener(textWatcher)
     }
 }
 
-fun TextView.addTextChangeListener(callback: (s: CharSequence?, start: Int, before: Int, count: Int) -> Unit): TextChangeListenerUnregistrar {
+fun TextView.addTextChangeListener(callback: (s: CharSequence?, start: Int, before: Int, count: Int) -> Unit): CallbackUnregistrar {
     val textWatcher = object: TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -72,5 +75,5 @@ fun TextView.addTextChangeListener(callback: (s: CharSequence?, start: Int, befo
 
     this.addTextChangedListener(textWatcher)
 
-    return TextChangeListenerUnregistrarImpl(this, textWatcher)
+    return TextChangeListenerUnregistrar(this, textWatcher)
 }

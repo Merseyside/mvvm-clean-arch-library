@@ -6,8 +6,6 @@ import android.os.Bundle
 import com.merseyside.mvvmcleanarch.data.serialization.deserialize
 import com.merseyside.mvvmcleanarch.data.serialization.serialize
 import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
-import com.merseyside.mvvmcleanarch.utils.Logger
-import com.merseyside.mvvmcleanarch.utils.log
 
 interface OrientationHandler {
 

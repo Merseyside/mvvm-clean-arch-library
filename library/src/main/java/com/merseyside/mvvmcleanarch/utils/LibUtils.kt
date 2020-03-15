@@ -2,6 +2,7 @@
 package com.merseyside.mvvmcleanarch.utils
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
@@ -106,7 +107,10 @@ fun isTablet(context: Context): Boolean {
             >= Configuration.SCREENLAYOUT_SIZE_LARGE)
 }
 
-fun <T> T?.log(tag: Any? = null, msg: Any? = this): T? {
-    Logger.log(tag ?: "Log", msg ?: "null")
-    return this
+fun getApplicationName(context: Context): String? {
+    val applicationInfo: ApplicationInfo = context.applicationInfo
+    val stringId: Int = applicationInfo.labelRes
+    return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(
+        stringId
+    )
 }

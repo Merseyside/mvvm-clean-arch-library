@@ -1,10 +1,6 @@
 package com.merseyside.mvvmcleanarch.data.serialization
 
-import kotlinx.serialization.Decoder
-import kotlinx.serialization.DeserializationStrategy
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.UpdateNotSupportedException
-import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.*
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonInput
 import kotlinx.serialization.json.JsonObject
@@ -12,7 +8,7 @@ import kotlinx.serialization.json.content
 
 object JsonArrayToStringMapDeserializer : DeserializationStrategy<Map<String, String>> {
 
-    override val descriptor = SerialClassDescImpl("JsonMap")
+    override val descriptor = SerialDescriptor("JsonMap")
 
     override fun deserialize(decoder: Decoder): Map<String, String> {
 

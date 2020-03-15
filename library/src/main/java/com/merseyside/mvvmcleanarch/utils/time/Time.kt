@@ -5,12 +5,12 @@ import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun getCurrentTimeInMillis(): Long {
+fun getSystemTimeMillis(): Long {
     return System.currentTimeMillis()
 }
 
-fun getTimestampMillis(): Millis {
-    return Millis(getCurrentTimeInMillis())
+fun getTimestamp(): TimeUnit {
+    return Millis(getSystemTimeMillis())
 }
 
 fun getHoursMinutes(timestamp: Long, context: Context? = null): String {
@@ -18,7 +18,7 @@ fun getHoursMinutes(timestamp: Long, context: Context? = null): String {
 }
 
 fun getHoursMinutes(timestamp: TimeUnit, context: Context? = null): String {
-    return getHoursMinutes(timestamp.toMillis().toLong(), context)
+    return getHoursMinutes(timestamp.toMillisLong(), context)
 }
 
 fun getDate(timestamp: Long, context: Context?): String {
@@ -26,7 +26,7 @@ fun getDate(timestamp: Long, context: Context?): String {
 }
 
 fun getDate(timestamp: TimeUnit, context: Context?): String {
-    return getDate(timestamp.toMillis().toLong(), context)
+    return getDate(timestamp.toMillisLong(), context)
 }
 
 fun getDateWithTime(timestamp: Long, context: Context?): String {
@@ -34,11 +34,11 @@ fun getDateWithTime(timestamp: Long, context: Context?): String {
 }
 
 fun getDateWithTime(timestamp: TimeUnit, context: Context?): String {
-    return getDateWithTime(timestamp.toMillis().toLong(), context)
+    return getDateWithTime(timestamp.toMillisLong(), context)
 }
 
 fun getFormattedDate(timestamp: TimeUnit, pattern: String, context: Context? = null): String {
-    return getFormattedDate(timestamp.toMillis().toLong(), pattern, context)
+    return getFormattedDate(timestamp.toMillisLong(), pattern, context)
 }
 
 fun getFormattedDate(timestamp: Long, pattern: String, context: Context? = null): String {

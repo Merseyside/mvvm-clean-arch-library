@@ -1,5 +1,8 @@
 package com.merseyside.mvvmcleanarch.utils.time
 
+import android.content.Context
+import kotlinx.serialization.Serializable
+
 object Conversions {
     const val MILLIS_CONST = 1000L
     const val SECONDS_MINUTES_CONST = 60L
@@ -38,6 +41,18 @@ operator fun <T: TimeUnit> T.minus(unary: TimeUnit): T {
     return this - convert(unary)
 }
 
+operator fun <T: TimeUnit> T.compareTo(other: T): Int {
+    return this.toMillisLong().compareTo(other.toMillisLong())
+}
+
+fun <T: TimeUnit> T.isEqual(other: T): Boolean {
+    return this.toMillisLong() == other.toMillisLong()
+}
+
+fun <T: TimeUnit> T.isNotEqual(other: T) = isEqual(other)
+
+
+
 interface TimeUnit {
 
     val value: Long
@@ -51,6 +66,10 @@ interface TimeUnit {
     fun toMinutes(): Minutes
     fun toHours(): Hours
     fun toDays(): Days
+
+    fun getDayOfYear(context: Context? = null): Days {
+        return Days(getFormattedDate(this, "DD", context))
+    }
 
     fun newInstance(value: Long): TimeUnit
 
@@ -73,10 +92,11 @@ interface TimeUnit {
     }
 }
 
-
 inline class Millis(override val value: Long): TimeUnit {
 
     internal constructor(unit: TimeUnit): this(unit.value)
+
+    constructor(string: String): this(string.toLong())
 
     override fun toMillis(): Millis {
         return this
@@ -107,6 +127,8 @@ inline class Seconds(override val value: Long): TimeUnit {
 
     internal constructor(unit: TimeUnit): this(unit.value)
 
+    constructor(string: String): this(string.toLong())
+
     override fun toMillis(): Millis {
         return Millis(value * Conversions.MILLIS_CONST)
     }
@@ -135,6 +157,8 @@ inline class Seconds(override val value: Long): TimeUnit {
 inline class Minutes(override val value: Long): TimeUnit {
 
     internal constructor(unit: TimeUnit): this(unit.value)
+
+    constructor(string: String): this(string.toLong())
 
     override fun toMillis(): Millis {
         return Millis(toSeconds() * Conversions.MILLIS_CONST)
@@ -165,6 +189,8 @@ inline class Hours(override val value: Long): TimeUnit {
 
     internal constructor(unit: TimeUnit): this(unit.value)
 
+    constructor(string: String): this(string.toLong())
+
     override fun toMillis(): Millis {
         return Millis(toSeconds() * Conversions.MILLIS_CONST)
     }
@@ -193,6 +219,8 @@ inline class Hours(override val value: Long): TimeUnit {
 inline class Days(override val value: Long): TimeUnit {
 
     internal constructor(unit: TimeUnit): this(unit.value)
+
+    constructor(string: String): this(string.toLong())
 
     override fun toMillis(): Millis {
         return Millis(toSeconds() * Conversions.MILLIS_CONST)

@@ -3,20 +3,20 @@ package com.merseyside.mvvmcleanarch.data.serialization
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 
-@UseExperimental(UnstableDefault::class)
+@UnstableDefault
 val json: Json by lazy {
     Json {
-        strictMode = false
+        isLenient = true
         allowStructuredMapKeys = true
     }
 }
 
-@UseExperimental(ImplicitReflectionSerializer::class)
+@OptIn(ImplicitReflectionSerializer::class)
 inline fun <reified T : Any> T.serialize(): String {
     return json.stringify(this)
 }
 
-@UseExperimental(ImplicitReflectionSerializer::class)
+@OptIn(ImplicitReflectionSerializer::class)
 inline fun <reified T : Any> String.deserialize(): T {
     return json.parse(this)
 }

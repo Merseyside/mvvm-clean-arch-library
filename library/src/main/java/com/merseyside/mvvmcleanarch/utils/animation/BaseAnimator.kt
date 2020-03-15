@@ -5,7 +5,6 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.os.Build
 import com.merseyside.mvvmcleanarch.utils.Logger
-import com.merseyside.mvvmcleanarch.utils.log
 
 abstract class BaseAnimator {
 

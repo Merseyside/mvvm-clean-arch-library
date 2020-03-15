@@ -12,6 +12,7 @@ import javax.inject.Singleton
 /**
  * Json Serializer/Deserializer.
  */
+@UnstableDefault
 @Singleton
 class Serializer @Inject constructor() {
 
@@ -19,14 +20,6 @@ class Serializer @Inject constructor() {
         GsonBuilder()
             .setLenient()
             .create()
-    }
-
-    @UseExperimental(UnstableDefault::class)
-    private val json: Json by lazy {
-        Json {
-            strictMode = false
-            allowStructuredMapKeys = true
-        }
     }
 
     fun serialize(obj: Any, clazz: Class<*>): String {
