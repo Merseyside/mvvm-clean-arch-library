@@ -1,27 +1,16 @@
 package com.merseyside.mvvmcleanarch.presentation.adapter
 
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.CallSuper
 import androidx.recyclerview.widget.SortedList
 import com.merseyside.mvvmcleanarch.presentation.model.BaseComparableAdapterViewModel
-import java.lang.reflect.ParameterizedType
-import kotlin.Any
-import kotlin.Boolean
-import kotlin.Comparator
-import kotlin.Int
-import kotlin.String
-import kotlin.collections.HashMap
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.MutableList
-import kotlin.collections.set
-import kotlin.synchronized
 import com.merseyside.mvvmcleanarch.presentation.view.BaseViewHolder
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.ext.isNotEquals
 import com.merseyside.mvvmcleanarch.utils.ext.isNotNullAndEmpty
-import kotlin.collections.ArrayList
+import com.merseyside.mvvmcleanarch.utils.isMainThread
+import com.merseyside.mvvmcleanarch.utils.mainThread
+import java.lang.reflect.ParameterizedType
+import kotlin.collections.set
 
 
 @Suppress("UNCHECKED_CAST")
@@ -158,8 +147,8 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
     }
 
     private fun runOnRightThread(func: () -> Unit) {
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            Handler(Looper.getMainLooper()).post {
+        if (!isMainThread()) {
+            mainThread {
                 func()
             }
         } else {
@@ -206,7 +195,7 @@ abstract class BaseSortedAdapter<M: Any, T: BaseComparableAdapterViewModel<M>> :
 
         val addList = ArrayList<M>()
         for (obj in updateRequest.list) {
-            if (Looper.getMainLooper() == Looper.myLooper() || (updateThread != null && !updateThread!!.isInterrupted)) {
+            if (isMainThread() || (updateThread != null && !updateThread!!.isInterrupted)) {
                 if (!update(obj) && updateRequest.isAddNew) {
                     addList.add(obj)
                 }

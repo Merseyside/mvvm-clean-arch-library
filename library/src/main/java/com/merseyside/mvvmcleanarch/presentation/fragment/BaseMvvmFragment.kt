@@ -63,13 +63,17 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        binding.setVariable(getBindingVariable(), viewModel)
-        binding.executePendingBindings()
+        binding.apply {
+            setVariable(getBindingVariable(), viewModel)
+            executePendingBindings()
+        }
 
-        viewModel.errorLiveEvent.observe(this, errorObserver)
-        viewModel.messageLiveEvent.observe(this, messageObserver)
-        viewModel.isInProgressLiveData.observe(this, loadingObserver)
-        viewModel.alertDialogLiveEvent.observe(this, alertDialogModel)
+        viewModel.apply {
+            errorLiveEvent.observe(viewLifecycleOwner, errorObserver)
+            messageLiveEvent.observe(viewLifecycleOwner, messageObserver)
+            isInProgressLiveData.observe(viewLifecycleOwner, loadingObserver)
+            alertDialogLiveEvent.observe(viewLifecycleOwner, alertDialogModel)
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -83,6 +87,7 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     }
 
     override fun updateLanguage(context: Context) {
+        super.updateLanguage(context)
         viewModel.updateLanguage(context)
     }
 

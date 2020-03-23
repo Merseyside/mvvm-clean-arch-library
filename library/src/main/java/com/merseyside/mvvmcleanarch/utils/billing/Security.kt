@@ -53,7 +53,7 @@ object Security {
      * is invalid
      */
     @Throws(IOException::class)
-    fun generatePublicKey(encodedPublicKey: String?): PublicKey {
+    private fun generatePublicKey(encodedPublicKey: String?): PublicKey {
         return try {
             val decodedKey: ByteArray = Base64.decode(encodedPublicKey, Base64.DEFAULT)
             val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_FACTORY_ALGORITHM)
@@ -77,13 +77,12 @@ object Security {
      * @param signature server signature
      * @return true if the data and signature match
      */
-    fun verify(
+    private fun verify(
         publicKey: PublicKey?,
         signedData: String,
         signature: String?
     ): Boolean {
-        val signatureBytes: ByteArray
-        signatureBytes = try {
+        val signatureBytes: ByteArray = try {
             Base64.decode(signature, Base64.DEFAULT)
         } catch (e: IllegalArgumentException) {
             BillingHelper.logWarn(TAG, "Base64 decoding failed.")

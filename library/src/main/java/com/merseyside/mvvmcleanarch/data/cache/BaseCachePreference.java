@@ -20,11 +20,11 @@ public abstract class BaseCachePreference<T> extends BaseCache<T> {
 
     private void setLastCacheUpdateTimeMillis() {
         final long currentMillis = System.currentTimeMillis();
-        this.preferenceManager.savePreference(getPreferenceLastCacheUpdateKey(), currentMillis);
+        this.preferenceManager.put(getPreferenceLastCacheUpdateKey(), currentMillis);
     }
 
     private long getLastCacheUpdateTimeMillis() {
-        return this.preferenceManager.getLongPreference(getPreferenceLastCacheUpdateKey(), 0);
+        return this.preferenceManager.getLong(getPreferenceLastCacheUpdateKey(), 0);
     }
 
     @Override

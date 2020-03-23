@@ -1,12 +1,13 @@
 package com.merseyside.mvvmcleanarch.presentation.model
 
+import android.content.Context
 import androidx.databinding.BaseObservable
+import com.merseyside.mvvmcleanarch.presentation.interfaces.IStringHelper
 import com.merseyside.mvvmcleanarch.presentation.adapter.BaseAdapter
-import java.util.concurrent.ArrayBlockingQueue
 
 abstract class BaseAdapterViewModel<M>(
     obj: M
-) : BaseObservable() {
+) : BaseObservable(), IStringHelper {
 
     abstract var obj: M
 
@@ -14,7 +15,8 @@ abstract class BaseAdapterViewModel<M>(
         this.obj = obj
     }
 
-    private val listeners: ArrayList<BaseAdapter.OnItemClickListener<M>> by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
+    private val listeners: ArrayList<BaseAdapter.OnItemClickListener<M>>
+            by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
 
     fun setOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
         if (!this.listeners.contains(listener)) {
@@ -48,6 +50,10 @@ abstract class BaseAdapterViewModel<M>(
     abstract fun areItemsTheSame(obj: M): Boolean
 
     abstract fun notifyUpdate()
+
+    override fun getLocaleContext(): Context {
+        throw UnsupportedOperationException("Please, override getContext in your AdapterViewModel")
+    }
 
     companion object {
         private const val TAG = "BaseAdapterViewModel"

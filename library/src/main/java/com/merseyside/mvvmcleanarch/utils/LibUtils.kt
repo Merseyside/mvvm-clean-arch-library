@@ -4,9 +4,13 @@ package com.merseyside.mvvmcleanarch.utils
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.ViewConfiguration
+import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 import java.util.*
 
 internal fun getLocalizedContext(localeManager: LocaleManager): Context {
@@ -17,7 +21,7 @@ internal fun getLocalizedContext(localeManager: LocaleManager): Context {
     }
 }
 
-fun randomTrueOrFalse(positiveProbability: Float): Boolean {
+fun randomBool(positiveProbability: Float): Boolean {
     return when {
         positiveProbability >= 1f -> true
         positiveProbability <= 0f -> false
@@ -54,24 +58,11 @@ fun generateRandomString(length: Int): String {
 }
 
 fun getWindowWidth(context: Context): Int {
-    return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-        getWindowWidthPortrait(context)
-    } else {
-        getWindowWidthLandscape(context)
-    }
-}
-
-fun getWindowWidthPortrait(context: Context): Int {
     val metrics = context.resources.displayMetrics
     return metrics.widthPixels
 }
 
-fun getWindowWidthLandscape(context: Context): Int {
-    val metrics = context.resources.displayMetrics
-    return metrics.widthPixels
-}
-
-fun getNavBarHeight(context: Context): Int {
+fun getNavigationBarHeight(context: Context): Int {
     val result = 0
     val hasMenuKey =
         ViewConfiguration.get(context).hasPermanentMenuKey()
@@ -113,4 +104,25 @@ fun getApplicationName(context: Context): String? {
     return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(
         stringId
     )
+}
+
+fun mainThread(onMain: () -> Unit): Handler {
+    val handler = Handler(Looper.getMainLooper())
+    handler.post(onMain)
+    return handler
+}
+
+fun delayedMainThread(delay: TimeUnit, onMain: () -> Unit): Handler {
+    val handler = Handler(Looper.getMainLooper())
+    handler.postDelayed(onMain, delay.toMillisLong())
+    return handler
+}
+
+fun isMainThread(): Boolean {
+    return Looper.myLooper() == Looper.getMainLooper()
+}
+
+fun isExternalStorageReadable(): Boolean {
+    val state = Environment.getExternalStorageState()
+    return Environment.MEDIA_MOUNTED == state || Environment.MEDIA_MOUNTED_READ_ONLY == state
 }

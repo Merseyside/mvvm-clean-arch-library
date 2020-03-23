@@ -1,6 +1,5 @@
 package com.merseyside.mvvmcleanarch.presentation.model
 
-import android.app.Application
 import android.content.Context
 import android.view.View
 import androidx.annotation.CallSuper
@@ -9,13 +8,11 @@ import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.merseyside.mvvmcleanarch.presentation.interfaces.IStringHelper
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SingleLiveEvent
-import com.merseyside.mvvmcleanarch.utils.ext.getActualString
 
-abstract class BaseViewModel protected constructor() : ViewModel() {
-
-    abstract val application: Application
+abstract class BaseViewModel protected constructor() : ViewModel(), IStringHelper {
 
     val isInProgress = ObservableBoolean(false)
     val progressText = ObservableField<String>()
@@ -147,31 +144,15 @@ abstract class BaseViewModel protected constructor() : ViewModel() {
     ) {
 
         showAlertDialog(
-            getString(application, titleRes),
-            getString(application, messageRes),
-            getString(application, positiveButtonTextRes),
-            getString(application, negativeButtonTextRes),
+            getString(titleRes),
+            getString(messageRes),
+            getString(positiveButtonTextRes),
+            getString(negativeButtonTextRes),
             onPositiveClick,
             onNegativeClick,
             isOneAction,
             isCancelable
         )
-    }
-
-    fun getString(@StringRes id: Int, vararg args: String): String {
-        return getString(application, id, *args)!!
-    }
-
-    fun getString(@StringRes id: Int?, vararg args: String): String? {
-        return getString(application, id, *args)
-    }
-
-    fun getString(context: Context, @StringRes id: Int?, vararg args: String): String? {
-        return if (id != null) {
-            context.getActualString(id, *args)
-        } else {
-            null
-        }
     }
 
     protected abstract fun dispose()

@@ -9,7 +9,7 @@ import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 class ScaleAnimator(
-    builder: ScaleAnimator.Builder
+    builder: Builder
 ) : BaseSingleAnimator(builder) {
 
     class Builder(

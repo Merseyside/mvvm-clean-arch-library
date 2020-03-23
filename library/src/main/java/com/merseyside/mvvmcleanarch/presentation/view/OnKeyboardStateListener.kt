@@ -4,5 +4,5 @@ interface OnKeyboardStateListener {
 
     fun onKeyboardShown()
 
-    fun onKeyboardHided()
+    fun onKeyboardHid()
 }

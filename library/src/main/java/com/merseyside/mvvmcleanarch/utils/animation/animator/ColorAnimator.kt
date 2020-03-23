@@ -12,7 +12,7 @@ import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 class ColorAnimator(
-    builder: ColorAnimator.Builder
+    builder: Builder
 ) : BaseSingleAnimator(builder) {
 
     class Builder(

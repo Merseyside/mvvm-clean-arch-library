@@ -1,11 +1,11 @@
-package com.merseyside.mvvmcleanarch.presentation.view
+package com.merseyside.mvvmcleanarch.presentation.activity
 
 import android.content.Context
-import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
 import com.merseyside.mvvmcleanarch.presentation.fragment.BaseFragment
+import com.merseyside.mvvmcleanarch.presentation.view.IView
+import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
 import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
 
 interface IActivityView : IView {

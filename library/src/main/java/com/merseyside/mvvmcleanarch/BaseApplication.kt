@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
+import java.lang.Exception
 import java.util.*
 
 abstract class BaseApplication : Application() {
@@ -30,7 +31,8 @@ abstract class BaseApplication : Application() {
         return localeManager.language
     }
 
-    fun getActualString(@StringRes id: Int, vararg args: String): String {
+    @Throws(Exception::class)
+    internal fun getActualString(@StringRes id: Int, vararg args: String): String {
         return context.getString(id, *args)
     }
 

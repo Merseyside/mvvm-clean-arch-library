@@ -11,8 +11,6 @@ import com.merseyside.mvvmcleanarch.presentation.view.BaseViewHolder
 abstract class BasePagedAdapter<T>(diffUtil: DiffUtil.ItemCallback<T>)
     : PagedListAdapter<T, BaseViewHolder>(diffUtil) {
 
-    private val TAG = javaClass.simpleName
-
     private var listener: BaseAdapter.OnItemClickListener<T>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {

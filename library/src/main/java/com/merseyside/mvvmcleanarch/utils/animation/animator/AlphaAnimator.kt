@@ -8,7 +8,7 @@ import com.merseyside.mvvmcleanarch.utils.animation.BaseSingleAnimator
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 class AlphaAnimator(
-    builder: AlphaAnimator.Builder
+    builder: Builder
 ) : BaseSingleAnimator(builder) {
 
     class Builder(

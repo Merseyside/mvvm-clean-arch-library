@@ -1,8 +1,5 @@
 package com.merseyside.mvvmcleanarch.presentation.view
 
-import android.text.Editable
-import android.text.TextWatcher
-import androidx.databinding.BindingAdapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -12,8 +9,11 @@ import androidx.annotation.AttrRes
 import androidx.annotation.DrawableRes
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
+import com.google.android.material.textfield.TextInputLayout
+import com.merseyside.mvvmcleanarch.utils.ext.addTextChangeListener
 import com.merseyside.mvvmcleanarch.utils.ext.getColorFromAttr
 import com.merseyside.mvvmcleanarch.utils.ext.isNotNullAndEmpty
 import com.merseyside.mvvmcleanarch.utils.ext.setTextWithCursor
@@ -21,52 +21,52 @@ import com.merseyside.mvvmcleanarch.utils.ext.setTextWithCursor
 @BindingAdapter("app:isVisibleOrGone")
 fun isVisibleOrGone(view: View, isVisible: Boolean) {
     when(isVisible) {
-        true -> view.visibility = View.VISIBLE
-        false -> view.visibility = View.GONE
+        true -> view.visibility = VISIBLE
+        false -> view.visibility = GONE
     }
 }
 
 @BindingAdapter("app:isVisibleOrGone")
 fun isVisibleOrGone(view: View, obj: Any?) {
     view.visibility = if (obj != null) {
-        View.VISIBLE
+        VISIBLE
     } else {
-        View.GONE
+        GONE
     }
 }
 
 @BindingAdapter("app:isVisibleOrGone")
 fun isVisibleOrGone(view: View, collection: Collection<*>?) {
     view.visibility = if (collection.isNotNullAndEmpty()) {
-        View.VISIBLE
+        VISIBLE
     } else {
-        View.GONE
+        GONE
     }
 }
 
 @BindingAdapter("app:isVisible")
 fun isVisible(view: View, isVisible: Boolean) {
     when(isVisible) {
-        true -> view.visibility = View.VISIBLE
-        false -> view.visibility = View.INVISIBLE
+        true -> view.visibility = VISIBLE
+        false -> view.visibility = INVISIBLE
     }
 }
 
 @BindingAdapter("app:isVisible")
 fun isVisible(view: View, obj: Any?) {
     view.visibility = if (obj != null) {
-        View.VISIBLE
+        VISIBLE
     } else {
-        View.INVISIBLE
+        INVISIBLE
     }
 }
 
 @BindingAdapter("app:isVisible")
 fun isVisible(view: View, collection: Collection<*>?) {
     view.visibility = if (collection.isNotNullAndEmpty()) {
-        View.VISIBLE
+        VISIBLE
     } else {
-        View.INVISIBLE
+        INVISIBLE
     }
 }
 
@@ -77,26 +77,29 @@ fun setDrawableBackground(view: View, @DrawableRes res: Int?) {
     }
 }
 
+/**
+ * It use only for setting cursor in right position
+ */
 @BindingAdapter("bind:text")
-fun setText(editText: EditText, text: String?) {
-    editText.setTextWithCursor(text)
+fun setText(textView: TextView, text: String?) {
+    if (textView is EditText) {
+        textView.setTextWithCursor(text)
+    } else {
+        textView.text = text
+    }
 }
 
 @BindingAdapter(value = ["textAttrChanged"]) // AttrChanged required postfix
-fun setTextListener(editText: EditText, listener: InverseBindingListener?) {
-    editText.addTextChangedListener(object: TextWatcher {
-        override fun afterTextChanged(s: Editable?) {}
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            listener?.onChange()
-        }
-    })
+fun setTextListener(textView: TextView, listener: InverseBindingListener?) {
+    textView.addTextChangeListener { _, _, _, _ -> listener?.onChange() }
 }
 
 @InverseBindingAdapter(attribute = "bind:text")
-fun getText(editText: EditText): String? {
-    return editText.text.toString()
+fun getText(textView: TextView): String? {
+    return textView.text.toString()
 }
+
+/**/
 
 @BindingAdapter("bind:vectorDrawable")
 fun loadVectorDrawable(iv: ImageView, @DrawableRes resId: Int?) {
@@ -108,28 +111,28 @@ fun loadVectorDrawable(iv: ImageView, @DrawableRes resId: Int?) {
 @BindingAdapter("app:attrCardBackgroundColor")
 fun setCardViewBackgroundColor(cardView: CardView, @AttrRes attrId: Int?) {
     if (attrId != null) {
-        cardView.setCardBackgroundColor(cardView.context.getColorFromAttr(attrId))
+        cardView.setCardBackgroundColor(cardView.getColorFromAttr(attrId))
     }
 }
 
 @BindingAdapter("app:attrBackgroundColor")
 fun setViewGroupBackgroundColor(viewGroup: ViewGroup, @AttrRes attrId: Int?) {
     if (attrId != null) {
-        viewGroup.setBackgroundColor(viewGroup.context.getColorFromAttr(attrId))
+        viewGroup.setBackgroundColor(viewGroup.getColorFromAttr(attrId))
     }
 }
 
 @BindingAdapter("app:attrBackgroundColor")
 fun setViewBackgroundColor(view: View, @AttrRes attrId: Int?) {
     if (attrId != null) {
-        view.setBackgroundColor(view.context.getColorFromAttr(attrId))
+        view.setBackgroundColor(view.getColorFromAttr(attrId))
     }
 }
 
 @BindingAdapter("app:attrTextColor")
 fun setCustomTextColor(view: TextView, @AttrRes attrId: Int?) {
     if (attrId != null) {
-        view.setTextColor(view.context.getColorFromAttr(attrId))
+        view.setTextColor(view.getColorFromAttr(attrId))
     }
 }
 
@@ -147,5 +150,11 @@ fun setCount(view: TextView, collection: Collection<*>?) {
     } else {
         view.text = "0"
     }
+}
+
+@BindingAdapter("app:errorText")
+fun setErrorMessage(view: TextInputLayout, errorMessage: String?) {
+    view.isErrorEnabled = errorMessage.isNotNullAndEmpty()
+    view.error = errorMessage
 }
 

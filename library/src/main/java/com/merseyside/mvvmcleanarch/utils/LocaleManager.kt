@@ -4,15 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Build
 import android.os.Build.VERSION_CODES.JELLY_BEAN_MR1
-import android.preference.PreferenceManager
-import java.util.Locale
+import java.util.*
 
 class LocaleManager(var context: Context) {
 
-    private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+    private val prefs: SharedPreferences = context.getSharedPreferences(
+        "locale_pref", Context.MODE_PRIVATE
+    )
 
     var language: String = prefs.getString(LANGUAGE_KEY, getCurrentLocale().language)!!
 
@@ -20,7 +20,7 @@ class LocaleManager(var context: Context) {
         return updateResources(language)
     }
 
-    fun setNewLocale(language: String = LANGUAGE_ENGLISH): Context {
+    fun setNewLocale(language: String): Context {
         persistLanguage(language)
         return updateResources(language)
     }
@@ -60,8 +60,6 @@ class LocaleManager(var context: Context) {
     }
 
     companion object {
-
-        private const val LANGUAGE_ENGLISH = "en"
         private const val LANGUAGE_KEY = "language_key"
     }
 }

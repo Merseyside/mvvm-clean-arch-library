@@ -232,12 +232,14 @@ class BillingManager(
     private fun getGoogleCredentials(): GoogleCredentials {
         context.resources.openRawResource(credentialsId!!).use { `is` ->
             return GoogleCredentials.fromStream(`is`)
-                .createScoped("https://www.googleapis.com/auth/androidpublisher")
+                .createScoped(PUBLISHER_SCOPE)
         }
     }
 
 
     companion object {
         private const val TEST_SUBSCRIPTION_ID = "android.test.purchased"
+
+        private const val PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher"
     }
 }

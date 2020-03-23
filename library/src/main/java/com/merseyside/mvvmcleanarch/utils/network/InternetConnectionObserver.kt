@@ -6,30 +6,27 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.wifi.WifiManager
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import androidx.annotation.RequiresPermission
+import com.merseyside.mvvmcleanarch.utils.mainThread
 
 class InternetConnectionObserver(private val context: Context) {
 
     private var broadcastReceiver: NetworkStateChangeReceiver? = null
 
-
     @RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
     fun registerReceiver(listener: NetworkStateListener) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val handler = Handler(Looper.getMainLooper())
 
             getConnectivityManager(context).registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
-                    handler.post {
+                    mainThread {
                         listener.onConnectionState(true)
                     }
                 }
 
                 override fun onLost(network: Network?) {
-                    handler.post {
+                    mainThread {
                         listener.onConnectionState(false)
                     }
                 }

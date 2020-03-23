@@ -41,7 +41,7 @@ object ThemeManager {
         if (theme != null) {
             AppCompatDelegate.setDefaultNightMode(theme.themeId)
 
-            preferenceManager?.savePreference(THEME_KEY, theme.themeId)
+            preferenceManager?.put(THEME_KEY, theme.themeId)
         } else {
             Logger.log(this, "Theme hasn't been set")
         }
@@ -55,7 +55,7 @@ object ThemeManager {
 
     fun getSavedTheme(): Theme {
         return preferenceManager?.let {
-            Theme.getThemeById(preferenceManager!!.getIntPreference(THEME_KEY, Theme.DEFAULT.themeId))
+            Theme.getThemeById(preferenceManager!!.getInt(THEME_KEY, Theme.DEFAULT.themeId))
         } ?: throw IllegalStateException("Preference manager hasn't been set")
     }
 

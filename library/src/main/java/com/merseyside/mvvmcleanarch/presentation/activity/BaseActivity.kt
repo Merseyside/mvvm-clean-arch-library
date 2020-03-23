@@ -2,8 +2,6 @@ package com.merseyside.mvvmcleanarch.presentation.activity
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -15,10 +13,10 @@ import androidx.appcompat.widget.Toolbar
 import com.merseyside.mvvmcleanarch.BaseApplication
 import com.merseyside.mvvmcleanarch.presentation.dialog.MaterialAlertDialog
 import com.merseyside.mvvmcleanarch.presentation.fragment.BaseFragment
-import com.merseyside.mvvmcleanarch.presentation.view.IActivityView
 import com.merseyside.mvvmcleanarch.presentation.view.OnBackPressedListener
 import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
 import com.merseyside.mvvmcleanarch.presentation.view.OrientationHandler
+import com.merseyside.mvvmcleanarch.presentation.view.localeViews.ILocaleManager
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SnackbarManager
@@ -27,7 +25,8 @@ import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
 
-abstract class BaseActivity : AppCompatActivity(), IActivityView, OrientationHandler {
+abstract class BaseActivity : AppCompatActivity(),
+    IActivityView, OrientationHandler, ILocaleManager {
 
     override var keyboardUnregistrar: Any? = null
 
@@ -106,7 +105,7 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView, OrientationHan
             mainContext = application!!.setLanguage(language)
 
             getCurrentFragment()?.updateLanguage(mainContext)
-            updateLanguage(mainContext)
+            updateLanguage(mainContext).also { updateLocale(context = mainContext) }
         }
     }
 
@@ -259,7 +258,11 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView, OrientationHan
             this
         ) { isVisible ->
             if (isVisible) listener.onKeyboardShown()
-            else listener.onKeyboardHided()
+            else listener.onKeyboardHid()
         }
+    }
+
+    override fun getRootView(): View? {
+        return findViewById<View>(android.R.id.content).rootView
     }
 }

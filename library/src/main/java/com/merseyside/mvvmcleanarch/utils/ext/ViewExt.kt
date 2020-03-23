@@ -5,11 +5,23 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
 import com.merseyside.mvvmcleanarch.presentation.activity.BaseActivity
 import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
+
+@ColorInt
+fun View.getColorFromAttr(
+    @AttrRes attrColor: Int,
+    typedValue: TypedValue = TypedValue(),
+    resolveRefs: Boolean = true
+): Int {
+    return this.context.getColorFromAttr(attrColor, typedValue, resolveRefs)
+}
 
 fun EditText.setTextWithCursor(text: String?) {
     if (this.text.toString() != text) {

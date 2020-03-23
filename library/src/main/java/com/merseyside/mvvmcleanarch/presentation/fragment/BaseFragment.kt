@@ -17,10 +17,12 @@ import com.merseyside.mvvmcleanarch.presentation.activity.Orientation
 import com.merseyside.mvvmcleanarch.presentation.view.IView
 import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
 import com.merseyside.mvvmcleanarch.presentation.view.OrientationHandler
+import com.merseyside.mvvmcleanarch.presentation.view.localeViews.ILocaleManager
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SnackbarManager
+import com.merseyside.mvvmcleanarch.utils.ext.isNotNullAndEmpty
 
-abstract class BaseFragment : Fragment(), IView, OrientationHandler {
+abstract class BaseFragment : Fragment(), IView, OrientationHandler, ILocaleManager {
 
     final override var keyboardUnregistrar: Any? = null
 
@@ -29,6 +31,8 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
 
     private var requestCode: Int? = null
     private var fragmentResult: FragmentResult? = null
+
+    private var currentLanguage: String = ""
 
     var snackbarManager: SnackbarManager? = null
 
@@ -69,6 +73,8 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
             }
         }
 
+        restoreLanguage(savedInstanceState)
+
         setOrientation(resources, savedInstanceState)
 
         snackbarManager = baseActivityView.snackbarManager
@@ -84,6 +90,14 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
 
         getToolbar()?.let {
             baseActivityView.setFragmentToolbar(it)
+        }
+
+        baseActivityView.getLanguage().run {
+            if (currentLanguage.isNotNullAndEmpty() && this != currentLanguage) {
+                updateLanguage(baseActivityView.getContext())
+            }
+
+            currentLanguage = this
         }
     }
 
@@ -111,6 +125,7 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
         }
 
         saveOrientation(outState)
+        saveLanguage(outState)
     }
 
     override fun onStop() {
@@ -169,7 +184,10 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
         }
     }
 
-    open fun updateLanguage(context: Context) {}
+    @CallSuper
+    open fun updateLanguage(context: Context) {
+        updateLocale(context = context)
+    }
 
     override fun setLanguage(lang: String?) {
         baseActivityView.setLanguage(lang)
@@ -280,6 +298,20 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
         return requestCode != null
     }
 
+    private fun saveLanguage(outState: Bundle) {
+        outState.putString(LANGUAGE_KEY, currentLanguage)
+    }
+
+    private fun restoreLanguage(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(LANGUAGE_KEY)) {
+            currentLanguage = savedInstanceState.getString(LANGUAGE_KEY, "")
+        }
+    }
+
+    override fun getRootView(): View? {
+        return view
+    }
+
     open fun onFragmentResult(resultCode: Int, requestCode: Int, bundle: Bundle? = null) {}
 
     class FragmentResult(
@@ -291,6 +323,8 @@ abstract class BaseFragment : Fragment(), IView, OrientationHandler {
     companion object {
         const val RESULT_OK = -1
         const val RESULT_CANCELLED = 0
+
+        private const val LANGUAGE_KEY = "language_mvvm_lib"
 
         private const val REQUEST_CODE_KEY = "requestCode"
         private const val RESULT_CODE_KEY = "resultCode"

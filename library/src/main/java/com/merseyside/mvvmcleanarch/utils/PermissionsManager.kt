@@ -3,11 +3,8 @@ package com.merseyside.mvvmcleanarch.utils
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Environment
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import java.lang.IllegalArgumentException
-import java.lang.Math.pow
 import kotlin.math.pow
 
 /**
@@ -54,11 +51,6 @@ object PermissionsManager {
             if (granted != PackageManager.PERMISSION_GRANTED) return false
         }
         return true
-    }
-
-    fun isExternalStorageReadable(): Boolean {
-        val state = Environment.getExternalStorageState()
-        return Environment.MEDIA_MOUNTED == state || Environment.MEDIA_MOUNTED_READ_ONLY == state
     }
 
     private fun isRequestCodeValid(code: Int): Boolean {

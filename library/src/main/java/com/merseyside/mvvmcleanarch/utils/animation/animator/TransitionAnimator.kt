@@ -8,7 +8,7 @@ import com.merseyside.mvvmcleanarch.utils.animation.*
 import com.merseyside.mvvmcleanarch.utils.time.TimeUnit
 
 class TransitionAnimator (
-    builder: TransitionAnimator.Builder
+    builder: Builder
 ): BaseSingleAnimator(builder) {
 
     class Builder(

@@ -42,12 +42,12 @@ interface IView {
 
     fun getActualString(@StringRes id: Int?, vararg args: String): String?
 
-    var keyboardUnregistrar: Any?
-
     /**
      * It's a hack! Don't know why but Unregistrar(like his implementations) interface
-     * cannot be accessed if declared as global variable.
+     * cannot be accessed if had declared as global variable.
      */
+    var keyboardUnregistrar: Any?
+
     fun unregisterKeyboardListener() {
         if (keyboardUnregistrar != null) {
             (keyboardUnregistrar!! as Unregistrar).unregister()
