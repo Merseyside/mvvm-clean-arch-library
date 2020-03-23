@@ -1,11 +1,13 @@
 package com.merseyside.mvvmcleanarch.presentation.model
 
+import android.content.Context
 import androidx.databinding.BaseObservable
+import com.merseyside.mvvmcleanarch.presentation.interfaces.IStringHelper
 import com.merseyside.mvvmcleanarch.presentation.adapter.BaseAdapter
 
 abstract class BaseAdapterViewModel<M>(
     obj: M
-) : BaseObservable() {
+) : BaseObservable(), IStringHelper {
 
     abstract var obj: M
 
@@ -13,14 +15,19 @@ abstract class BaseAdapterViewModel<M>(
         this.obj = obj
     }
 
-    private val listeners: MutableList<BaseAdapter.OnItemClickListener<M>> by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
+    private val listeners: ArrayList<BaseAdapter.OnItemClickListener<M>>
+            by lazy { ArrayList<BaseAdapter.OnItemClickListener<M>>() }
 
     fun setOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
-        this.listeners.add(listener)
+        if (!this.listeners.contains(listener)) {
+            this.listeners.add(listener)
+        }
     }
 
     fun removeOnItemClickListener(listener: BaseAdapter.OnItemClickListener<M>) {
-        listeners.remove(listener).toString()
+        if (listeners.isNotEmpty()) {
+            listeners.remove(listener).toString()
+        }
     }
 
     fun onClick() {
@@ -38,9 +45,15 @@ abstract class BaseAdapterViewModel<M>(
         return obj
     }
 
+    open fun onRecycled() {}
+
     abstract fun areItemsTheSame(obj: M): Boolean
 
     abstract fun notifyUpdate()
+
+    override fun getLocaleContext(): Context {
+        throw UnsupportedOperationException("Please, override getContext in your AdapterViewModel")
+    }
 
     companion object {
         private const val TAG = "BaseAdapterViewModel"

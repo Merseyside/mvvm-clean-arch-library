@@ -48,8 +48,8 @@ abstract class BaseDialog : DialogFragment() {
         } catch (e: IllegalStateException) {}
     }
 
-    fun hideKeyboard() {
-        baseActivity.hideKeyboard()
+    fun hideKeyboard(view: View) {
+        baseActivity.hideKeyboard(context, view)
     }
 
     fun showMsg(msg: String) {

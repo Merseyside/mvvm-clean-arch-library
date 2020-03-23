@@ -1,4 +1,4 @@
-package com.merseyside.mvvmcleanarch.domain.interactor
+package com.merseyside.mvvmcleanarch.domain.interactor.rxjava
 
 import com.merseyside.mvvmcleanarch.domain.executor.PostExecutionThread
 import com.merseyside.mvvmcleanarch.domain.executor.ThreadExecutor
@@ -13,8 +13,9 @@ import io.reactivex.schedulers.Schedulers
  * Created by merseyside on 19.12.17.
  */
 
-abstract class ObservableUseCase<T, Params> protected constructor(private val threadExecutor: ThreadExecutor,
-                                                                  private val postExecutionThread: PostExecutionThread
+abstract class ObservableUseCase<T, Params> protected constructor(
+    private val threadExecutor: ThreadExecutor,
+    private val postExecutionThread: PostExecutionThread
 ) {
 
     private val TAG = this.javaClass.simpleName

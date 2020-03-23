@@ -5,35 +5,49 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.annotation.*
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.merseyside.mvvmcleanarch.BaseApplication
 import com.merseyside.mvvmcleanarch.presentation.dialog.MaterialAlertDialog
 import com.merseyside.mvvmcleanarch.presentation.fragment.BaseFragment
-import com.merseyside.mvvmcleanarch.presentation.view.IActivityView
 import com.merseyside.mvvmcleanarch.presentation.view.OnBackPressedListener
+import com.merseyside.mvvmcleanarch.presentation.view.OnKeyboardStateListener
+import com.merseyside.mvvmcleanarch.presentation.view.OrientationHandler
+import com.merseyside.mvvmcleanarch.presentation.view.localeViews.ILocaleManager
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.Logger
 import com.merseyside.mvvmcleanarch.utils.SnackbarManager
 import com.merseyside.mvvmcleanarch.utils.ext.getActualString
 import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
-import kotlinx.serialization.Serializable
-import java.lang.IllegalStateException
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
+import net.yslibrary.android.keyboardvisibilityevent.Unregistrar
 
-abstract class BaseActivity : AppCompatActivity(), IActivityView {
+abstract class BaseActivity : AppCompatActivity(),
+    IActivityView, OrientationHandler, ILocaleManager {
+
+    override var keyboardUnregistrar: Any? = null
+
+    final override var orientation: Orientation? = null
 
     private var application: BaseApplication? = null
-    lateinit var context: Context
-        private set
+    private lateinit var mainContext: Context
 
-    override lateinit var snackbarManager: SnackbarManager
+    override fun getContext(): Context {
+        return mainContext
+    }
+
+    lateinit var snackbarManager: SnackbarManager
+
+    override fun onOrientationChanged(orientation: Orientation, savedInstanceState: Bundle?) {}
 
     override fun attachBaseContext(newBase: Context?) {
         if (newBase != null) {
             val localeManager = LocaleManager(newBase)
 
-            super.attachBaseContext(getLocalizedContext(localeManager).also { context = it })
+            super.attachBaseContext(getLocalizedContext(localeManager).also { mainContext = it })
         }
     }
 
@@ -43,6 +57,8 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         if (applicationContext is BaseApplication) {
             application = applicationContext as BaseApplication
         }
+
+        setOrientation(resources, savedInstanceState)
 
         if (this !is BaseMvvmActivity<*, *>) {
             setContentView(getLayoutId())
@@ -55,12 +71,28 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         snackbarManager = SnackbarManager(this)
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        if (this is OnKeyboardStateListener) {
+            keyboardUnregistrar = registerKeyboardListener(this)
+        }
+    }
+
     override fun onStop() {
         super.onStop()
 
         if (snackbarManager.isShowing()) {
             snackbarManager.dismiss()
         }
+
+        unregisterKeyboardListener()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        saveOrientation(outState)
     }
 
     open fun updateLanguage(context: Context) {}
@@ -70,10 +102,10 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
 
             val language = lang ?: getLanguage()
 
-            context = application!!.setLanguage(language)
+            mainContext = application!!.setLanguage(language)
 
-            getCurrentFragment()?.updateLanguage(context)
-            updateLanguage(context)
+            getCurrentFragment()?.updateLanguage(mainContext)
+            updateLanguage(mainContext).also { updateLocale(context = mainContext) }
         }
     }
 
@@ -112,12 +144,9 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         }
     }
 
-    override fun hideKeyboard() {
-        val view = currentFocus
-        if (view != null) {
-            val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-        }
+    override fun hideKeyboard(context: Context?, view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     override fun onBackPressed() {
@@ -222,5 +251,18 @@ abstract class BaseActivity : AppCompatActivity(), IActivityView {
         fragmentResult.let {
             getCurrentFragment()?.onFragmentResult(it.resultCode, it.requestCode, it.bundle)
         }
+    }
+
+    override fun registerKeyboardListener(listener: OnKeyboardStateListener): Unregistrar {
+        return KeyboardVisibilityEvent.registerEventListener(
+            this
+        ) { isVisible ->
+            if (isVisible) listener.onKeyboardShown()
+            else listener.onKeyboardHid()
+        }
+    }
+
+    override fun getRootView(): View? {
+        return findViewById<View>(android.R.id.content).rootView
     }
 }

@@ -5,13 +5,15 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.merseyside.mvvmcleanarch.utils.LocaleManager
 import com.merseyside.mvvmcleanarch.utils.getLocalizedContext
+import java.lang.Exception
 import java.util.*
 
 abstract class BaseApplication : Application() {
 
     private lateinit var localeManager: LocaleManager
+
     lateinit var context: Context
-    private set
+        private set
 
     override fun attachBaseContext(base: Context) {
         localeManager = LocaleManager(base)
@@ -29,7 +31,8 @@ abstract class BaseApplication : Application() {
         return localeManager.language
     }
 
-    fun getActualString(@StringRes id: Int, vararg args: String): String {
+    @Throws(Exception::class)
+    internal fun getActualString(@StringRes id: Int, vararg args: String): String {
         return context.getString(id, *args)
     }
 

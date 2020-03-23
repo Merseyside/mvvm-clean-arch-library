@@ -19,3 +19,30 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.SerializationKt
+-keep,includedescriptorclasses class com.merseyside.dictionaryapp.**$$serializer { *; }
+-keepclassmembers class com.merseyside.mvvmcleanarch.** {
+    *** Companion;
+}
+-keepclasseswithmembers class com.merseyside.mvvmcleanarch.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+
+-keepnames class kotlinx.** { *; }
+
+-keep class org.apache.http.** {
+    *;
+}
+
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-optimizations !code/simplification/arithmetic,!field
+-ignorewarnings

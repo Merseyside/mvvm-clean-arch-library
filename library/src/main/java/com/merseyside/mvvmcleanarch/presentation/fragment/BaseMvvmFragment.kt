@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.CallSuper
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.Observer
@@ -51,7 +52,10 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
         setHasOptionsMenu(false)
     }
 
+    @CallSuper
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
+
         binding = DataBindingUtil.inflate(inflater, getLayoutId(), container, false)
         binding.lifecycleOwner = this
         return binding.root
@@ -59,13 +63,17 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        binding.setVariable(getBindingVariable(), viewModel)
-        binding.executePendingBindings()
+        binding.apply {
+            setVariable(getBindingVariable(), viewModel)
+            executePendingBindings()
+        }
 
-        viewModel.errorLiveEvent.observe(this, errorObserver)
-        viewModel.messageLiveEvent.observe(this, messageObserver)
-        viewModel.isInProgressLiveData.observe(this, loadingObserver)
-        viewModel.alertDialogLiveEvent.observe(this, alertDialogModel)
+        viewModel.apply {
+            errorLiveEvent.observe(viewLifecycleOwner, errorObserver)
+            messageLiveEvent.observe(viewLifecycleOwner, messageObserver)
+            isInProgressLiveData.observe(viewLifecycleOwner, loadingObserver)
+            alertDialogLiveEvent.observe(viewLifecycleOwner, alertDialogModel)
+        }
 
         super.onViewCreated(view, savedInstanceState)
     }
@@ -79,10 +87,11 @@ abstract class BaseMvvmFragment<B : ViewDataBinding, M : BaseViewModel> : BaseFr
     }
 
     override fun updateLanguage(context: Context) {
+        super.updateLanguage(context)
         viewModel.updateLanguage(context)
     }
 
-    protected abstract fun loadingObserver(isLoading: Boolean)
+    protected open fun loadingObserver(isLoading: Boolean) {}
 
     protected fun showErrorMsg(textMessage: BaseViewModel.TextMessage) {
         if (textMessage.actionMsg.isNullOrEmpty()) {

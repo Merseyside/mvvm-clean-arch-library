@@ -5,51 +5,97 @@ import com.merseyside.mvvmcleanarch.BuildConfig
 
 object Logger {
 
+    var isEnabled: Boolean = true
     var isDebugOnly = true
 
-    fun log(tag: Any, msg: Any) {
-        if (!isDebugOnly || BuildConfig.DEBUG) {
+    fun log(tag: Any? = null, msg: Any? = "Empty msg") {
+        if (isEnabled && (!isDebugOnly || BuildConfig.DEBUG)) {
             Log.d(adoptTag(tag), adoptMsg(msg))
         }
     }
 
-    fun logErr(tag: Any, msg: Any) {
-        if (!isDebugOnly || BuildConfig.DEBUG) {
+    fun log(msg: Any? = "Empty msg") {
+        log("", msg)
+    }
+
+    fun logErr(tag: Any? = null, msg: Any? = "Empty error") {
+        if (isEnabled && (!isDebugOnly || BuildConfig.DEBUG)) {
             Log.e(adoptTag(tag), adoptMsg(msg))
         }
     }
 
-    fun logInfo(tag: Any, msg: Any) {
-        if (!isDebugOnly || BuildConfig.DEBUG) {
+    fun logErr(msg: Any? = "Empty error") {
+        logErr("", msg)
+    }
+
+    fun logInfo(tag: Any? = null, msg: Any?) {
+        if (isEnabled && (!isDebugOnly || BuildConfig.DEBUG)) {
             Log.i(adoptTag(tag), adoptMsg(msg))
         }
     }
 
-    fun logWtf(tag: Any, msg: Any) {
-        if (!isDebugOnly || BuildConfig.DEBUG) {
+    fun logInfo(msg: Any?) {
+        logInfo("", msg)
+    }
+
+    fun logWtf(tag: Any? = null, msg: Any? = "wtf?") {
+        if (isEnabled && (!isDebugOnly || BuildConfig.DEBUG)) {
             Log.wtf(adoptTag(tag), adoptMsg(msg))
         }
     }
 
-    private fun adoptTag(tag: Any): String {
-        val strTag = if (tag is String) {
-            tag
-        } else {
-            tag.javaClass.simpleName
-        }
+    fun logWtf(msg: Any? = "wtf?") {
+        logWtf("", msg)
+    }
 
-        return if (strTag.isEmpty()) {
-            "NonValidTag"
-        } else {
-            strTag
+    fun logErr(throwable: Throwable) {
+        if (isEnabled && (!isDebugOnly || BuildConfig.DEBUG)) {
+            throwable.printStackTrace()
         }
     }
 
-    private fun adoptMsg(msg: Any): String {
-        return if (msg is String) {
-            msg
+    private fun adoptTag(tag: Any?): String {
+
+        return if (tag != null) {
+            val strTag = if (tag is String) {
+                tag
+            } else {
+                tag.javaClass.simpleName
+            }
+
+            if (strTag.isEmpty()) {
+                TAG
+            } else {
+                strTag
+            }
         } else {
-            msg.toString()
+            TAG
         }
     }
+
+    private fun adoptMsg(msg: Any?): String {
+       return when (msg) {
+           null -> {
+               "null"
+           }
+
+           is String -> {
+               msg
+           }
+
+           is Collection<*> -> {
+               if (msg.isEmpty()) {
+                   "Empty collection"
+               } else {
+                   msg.toString()
+               }
+           }
+
+           else -> {
+               msg.toString()
+           }
+       }
+    }
+
+    const val TAG = "Logger"
 }

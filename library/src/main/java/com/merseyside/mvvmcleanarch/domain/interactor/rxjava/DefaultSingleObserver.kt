@@ -1,4 +1,4 @@
-package com.merseyside.mvvmcleanarch.domain.interactor
+package com.merseyside.mvvmcleanarch.domain.interactor.rxjava
 
 import io.reactivex.observers.DisposableSingleObserver
 

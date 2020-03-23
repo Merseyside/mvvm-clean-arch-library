@@ -4,7 +4,7 @@ import androidx.recyclerview.widget.SortedList
 import com.merseyside.mvvmcleanarch.presentation.model.BaseComparableAdapterViewModel
 
 @Throws(IllegalArgumentException::class)
-fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isContentEquals(list : MutableList<T>) : Boolean {
+fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isEquals(list : MutableList<T>) : Boolean {
 
     if (this.size() != list.size) {
         return false
@@ -23,3 +23,7 @@ fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isContentEqua
     }
 
 }
+
+fun <T : BaseComparableAdapterViewModel<M>, M : Any> SortedList<T>.isNotEquals(
+    list : MutableList<T>
+) : Boolean = !this.isEquals(list)

@@ -2,19 +2,22 @@ package com.merseyside.mvvmcleanarch.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.CallSuper
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.merseyside.mvvmcleanarch.presentation.model.BaseAdapterViewModel
 import com.merseyside.mvvmcleanarch.presentation.view.BaseViewHolder
-import java.util.*
 import kotlin.IllegalArgumentException
 
 abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapter<BaseViewHolder>() {
 
+    protected var isRecyclable: Boolean? = null
+
     private var listener: OnItemClickListener<M>? = null
 
     protected open val modelList: MutableList<T> = ArrayList()
+    private val bindItemList: MutableList<T> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val layoutInflater : LayoutInflater = LayoutInflater.from(parent.context)
@@ -25,8 +28,14 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         val obj = getModelByPosition(position)
+        bindItemList.add(obj)
+
         listener?.let { obj.setOnItemClickListener(listener!!) }
         holder.bind(getBindingVariable(), obj)
+
+        if (isRecyclable != null) {
+            holder.setIsRecyclable(isRecyclable!!)
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -50,7 +59,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
     }
 
     open fun removeOnItemClickListener(listener: OnItemClickListener<M>) {
-        modelList.forEach { model -> model.removeOnItemClickListener(listener) }
+        bindItemList.forEach { model -> model.removeOnItemClickListener(listener) }
     }
 
     interface OnItemClickListener<M> {
@@ -93,7 +102,7 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
         modelList.remove(obj)
     }
 
-    open fun removeAll() {
+    open fun clear() {
         modelList.clear()
         notifyDataSetChanged()
     }
@@ -127,6 +136,10 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
     }
 
     open fun setFilter(query: String) {
+        throw NotImplementedError()
+    }
+
+    open fun setFilterAsync(query: String, func: () -> Unit = {}) {
         throw NotImplementedError()
     }
 
@@ -170,6 +183,21 @@ abstract class BaseAdapter<M, T : BaseAdapterViewModel<M>> : RecyclerView.Adapte
             return getModelByPosition(itemCount - 1).getItem()
         } catch (e: Exception) {
             throw IndexOutOfBoundsException("List is empty")
+        }
+    }
+
+    @CallSuper
+    override fun onViewRecycled(holder: BaseViewHolder) {
+        super.onViewRecycled(holder)
+        if (holder.adapterPosition != RecyclerView.NO_POSITION && holder.adapterPosition < itemCount) {
+
+            getModelByPosition(holder.adapterPosition).apply {
+                bindItemList.remove(this)
+                listener?.let {
+                    removeOnItemClickListener(it)
+                }
+                onRecycled()
+            }
         }
     }
 

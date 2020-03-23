@@ -114,7 +114,7 @@ open class SnackbarManager(private val activity: Activity) {
 
     @ColorInt
     open fun getMsgBackgroundColor(): Int {
-        return activity.getColorFromAttr(R.attr.colorPrimaryVariant)
+        return activity.getColorFromAttr(R.attr.colorPrimary)
     }
 
     @ColorInt

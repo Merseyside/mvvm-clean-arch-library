@@ -13,7 +13,8 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import com.merseyside.mvvmcleanarch.R
 
-class TextProgressBar(context: Context, attributeSet: AttributeSet): LinearLayout(context, attributeSet) {
+class TextProgressBar(context: Context, attributeSet: AttributeSet)
+    : LinearLayout(context, attributeSet) {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var text: TextView

@@ -62,15 +62,19 @@ abstract class BaseMvvmActivity<B : ViewDataBinding, M : BaseViewModel> : BaseAc
 
     private fun performDataBinding() {
         binding = DataBindingUtil.setContentView(this, getLayoutId())
-        binding.lifecycleOwner = this
-        binding.setVariable(getBindingVariable(), viewModel)
-        binding.executePendingBindings()
+        binding.apply {
+            lifecycleOwner = this@BaseMvvmActivity
+            setVariable(getBindingVariable(), viewModel)
+            executePendingBindings()
+        }
     }
 
     private fun observeViewModel() {
-        viewModel.messageLiveEvent.observe(this, messageObserver)
-        viewModel.isInProgressLiveData.observe(this, loadingObserver)
-        viewModel.alertDialogLiveEvent.observe(this, alertDialogModel)
+        viewModel.apply {
+            messageLiveEvent.observe(this@BaseMvvmActivity, messageObserver)
+            isInProgressLiveData.observe(this@BaseMvvmActivity, loadingObserver)
+            alertDialogLiveEvent.observe(this@BaseMvvmActivity, alertDialogModel)
+        }
     }
 
     override fun handleError(throwable: Throwable) {
